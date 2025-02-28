@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngrok Tunneling Guide</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #1557a0;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        h3 {
+            font-size: 1.5em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            margin-bottom: 1em;
+        }
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 1em;
+        }
+        ul {
+            list-style-type: disc;
+        }
+        ol {
+            list-style-type: decimal;
+        }
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 10px;
+            border-radius: 4px;
+            position: relative;
+            overflow-x: auto;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+
+    <h1>Ngrok Tunneling Guide: Expose Your Local WebSocket Service to the World</h1>
+
+    <p>This documentation was generate by Grok using the single promt documented <a href="./ngrok_tunneling_doc_prompt.txt">here (click browser back button to return to this page)</a>.</p>
+    <p>Welcome to this guide on using Ngrok to tunnel a local WebSocket service. For anyone new to development or testing, Ngrok offers a simple way to share a local server with the outside world, no complex setup required. This guide walks through creating an Ngrok account, setting up a tunnel, and demonstrating a WebSocket service—all explained in a way that's easy to follow for first-timers.</p>
+
+    <h2>Introduction to Ngrok</h2>
+    <p>Ngrok is a tool that creates a secure tunnel from a public URL to a server running on your local machine. Imagine working on an app locally and wanting to test it with someone across the internet—Ngrok makes that possible without needing to deploy it to a remote server. It’s especially handy for services like WebSockets, which need a constant connection and can be tricky to test in certain network environments.</p>
+
+    <h2>Why Ngrok Helps with WebSocket Services</h2>
+    <p>WebSocket services rely on persistent, real-time connections between a client and server. Testing them locally can hit roadblocks, especially in two common scenarios: workplace firewalls and residential ISPs without static IPs. Here’s how Ngrok comes to the rescue:</p>
+    <ul>
+        <li><strong>Behind a Workplace Firewall:</strong> Firewalls often block incoming connections to your machine, making it impossible for external clients to reach your local WebSocket server. Ngrok tunnels traffic through its own servers, bypassing these restrictions and giving your service a public URL.</li>
+        <li><strong>Dynamic IPs from Residential ISPs:</strong> Many home internet providers assign IP addresses that change over time. Without a static IP, your server’s address shifts, breaking connections. Ngrok provides a consistent public URL, so your WebSocket service stays reachable no matter what your local IP does.</li>
+    </ul>
+    <p>With Ngrok, there’s no need to wrestle with network configs or beg your ISP for a static IP. It’s a straightforward solution that gets your service online fast.</p>
+
+    <h2>The Free Tier and Static Domains</h2>
+    <p>Ngrok offers a free tier account that’s perfect for getting started. One of its standout features is the ability to claim a single static domain—like <code>your-name.ngrok.app</code>. Unlike the random URLs Ngrok generates by default (which change every time you restart the tunnel), a static domain stays the same.</p>
+    <p>Why is this useful for prototyping and developing a WebSocket service? During development, consistency matters. A static domain lets you:</p>
+    <ul>
+        <li>Test your service with the same URL across sessions.</li>
+        <li>Share a reliable link with collaborators or testers.</li>
+        <li>Avoid updating client-side code every time the tunnel restarts.</li>
+    </ul>
+    <p>For anyone building a WebSocket app, this stability speeds up workflows and keeps the focus on coding rather than network hassles.</p>
+
+    <h2>Creating an Ngrok Account and Setting Up a Static Domain</h2>
+    <p>Ready to get started? Setting up an Ngrok account and a static domain is quick and free. Here’s how:</p>
+    <h3>Creating the Account</h3>
+    <ol>
+        <li>Head to the <a href="https://ngrok.com" target="_blank">Ngrok website</a> and click "Sign up."</li>
+        <li>Sign up with a Google or GitHub account for convenience, or use an email and password.</li>
+        <li>Check your inbox for a verification email and click the link to confirm your account.</li>
+        <li>Log in to the Ngrok dashboard once verified.</li>
+    </ol>
+    <h3>Claiming a Static Domain</h3>
+    <ol>
+        <li>In the dashboard, go to "Universal Edge" > "Domains."</li>
+        <li>Click "+ New Domain" and pick a subdomain (e.g., <code>my-websocket</code>).</li>
+        <li>Select a root domain like <code>ngrok.app</code> or <code>ngrok.dev</code>.</li>
+        <li>Hit "Create Domain" to lock it in.</li>
+    </ol>
+    <p>That’s it! Now you’ve got a static domain ready to use with your tunnels.</p>
+
+    <h2>Demonstrating a WebSocket Service with Mongoose</h2>
+    <p>Ngrok makes it easy to showcase a WebSocket service, even one running in a simple C terminal application. For this example, let’s use mongoose, a lightweight embedded web server that supports WebSockets. Showing off your service to the world becomes a breeze with Ngrok’s tunnel.</p>
+    <h3>Upgrading a WebSocket Connection in Mongoose</h3>
+    <p>To handle WebSocket traffic, mongoose needs to upgrade an HTTP connection to a WebSocket one. Below is a basic example of how to set this up in C, listening for raw strings sent from a tool like wscat:</p>
+    <pre><code>#include &quot;mongoose.h&quot;
+
+static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
+    if (ev == MG_EV_HTTP_REQUEST) {
+        struct http_message *hm = (struct http_message *) ev_data;
+        if (mg_vcmp(&amp;hm-&gt;uri, &quot;/websocket&quot;) == 0) {
+            mg_send_websocket_handshake(c, NULL, NULL);
+            c-&gt;flags |= MG_F_IS_WEBSOCKET;
+        }
+    } else if (ev == MG_EV_WEBSOCKET_FRAME) {
+        struct websocket_message *wm = (struct websocket_message *) ev_data;
+        printf(&quot;Received: %.*s\n&quot;, (int) wm-&gt;size, wm-&gt;data);
+    }
+}
+
+int main(void) {
+    struct mg_mgr mgr;
+    mg_mgr_init(&amp;mgr, NULL);
+    mg_bind(&amp;mgr, &quot;localhost:8000&quot;, ev_handler);
+    for (;;) {
+        mg_mgr_poll(&amp;mgr, 1000);
+    }
+    mg_mgr_free(&amp;mgr);
+    return 0;
+}
+<button class="copy-button" onclick="copyCode(this)">Copy</button></code></pre>
+    <p>This code sets up a server on <code>localhost:8000</code>. When a client hits <code>/websocket</code>, it upgrades to a WebSocket connection. Any messages sent (like raw strings from wscat) get printed to the console. To make it public, run Ngrok with <code>ngrok http 8000</code> (or use your static domain), and you’re live!</p>
+
+    <h2>Installing wscat for Testing</h2>
+    <p>wscat is a handy command-line tool for interacting with WebSocket services. It’s perfect for sending test messages to your mongoose server through the Ngrok tunnel. Here’s how to install it on different systems:</p>
+    <h3>Windows</h3>
+    <ol>
+        <li>Download and install Node.js from <a href="https://nodejs.org" target="_blank">nodejs.org</a>.</li>
+        <li>Open Command Prompt and type: <code>npm install -g wscat</code></li>
+    </ol>
+    <h3>Linux</h3>
+    <ol>
+        <li>Install Node.js with your package manager (e.g., <code>sudo apt install nodejs</code> on Ubuntu).</li>
+        <li>Run: <code>sudo npm install -g wscat</code></li>
+    </ol>
+    <h3>macOS</h3>
+    <ol>
+        <li>Install Node.js from <a href="https://nodejs.org" target="_blank">nodejs.org</a> or via Homebrew with <code>brew install node</code>.</li>
+        <li>Run: <code>npm install -g wscat</code></li>
+    </ol>
+    <p>After installation, test your service with something like <code>wscat -c wss://your-static-domain.ngrok.app/websocket</code>. Type a message, and watch it appear in your C terminal!</p>
+
+    <h2>Wrapping Up</h2>
+    <p>Ngrok simplifies the process of exposing a local WebSocket service, whether you’re stuck behind a firewall or dealing with a shifting IP. Its free tier, complete with a static domain, is a game-changer for prototyping and development. This guide has shown how to set up an Ngrok account, tunnel a service with mongoose, and test it with wscat—all in a few straightforward steps.</p>
+    <p>For anyone eager to explore more, Ngrok opens up a world of possibilities. Give it a try with your next project and see how it streamlines your workflow!</p>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling;
+            const text = codeBlock.textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Code copied to clipboard!');
+            }
+        }
+    </script>
+</body>
+</html>

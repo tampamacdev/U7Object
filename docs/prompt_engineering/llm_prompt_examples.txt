@@ -1,0 +1,146 @@
+Below are a couple of prompts I used to generate the documentation in this repo. After getting helpful answers from Grok and ChatGPT I would paste the prompts below to generate HTML documentation. The prompts worked the day I created this "prompt howto guide" but there are no guarantees they will work the same in the future. AI is an excellent tool for learning when you understand the pros and cons of AI's capabilities. 
+
+Example prompt for an HTML document for a the last reponse.
+
+
+Please provide an HTML document of your latest response (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+
+
+Example prompt for an HTML document for a the entire conversation.
+
+
+Please provide an HTML document of this entire conversation (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+
+Here's an example of a copy button implementation for a code snippet
+
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>// A basic Vala program
+public class HelloWorld {
+    public static void main(string[] args) {
+        stdout.printf("Hello, Vala World!\n");
+    }
+}</code></pre>
+            </div>
+
+
+
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const code = button.nextElementSibling.querySelector('code').textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        alert('Code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Code copied to clipboard!');
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+Create a web page that will act as a generic navigation page. The basic layout is a title at the top for the name of the page followed by sections of links to other pages. Something like this.
+<h1>Title to page</h1>
+This is the description of this page
+<h2>Section title 1</h2>
+<a href="./name_of_subpage1">Subpage 1</a>
+<a href="./name_of_subpage2">Subpage 2</a>
+<h2>Section title 1</h2>
+<a href="./name_of_subpage3">Subpage 3</a>
+<a href="./name_of_subpage4">Subpage 4</a>
+
+Please provide an HTML document of your response to my web page layout description (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+
+
+
+
+
+
+
+This section of text was provided as instructions in a previous Grok chat session. The section of text is enclosed with the <section> tag.
+
+<section>
+Please provide an HTML document of this conversation in the form of a textbook chapter (raw plain tex) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+</section>
+
+I asked you to generate a javascript function to create a copy action for a code snippet, but you created one that works and one that doesn't with similar prompt instructions. The first "copyCode" function works, but in the second script attempt "copyCode" doesn't work and you created "fallbackCopy" explain why to create two different implementations of copyCode and why you felt the need to create fallbackCopy.
+
+
+
+works
+
+
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const code = pre.textContent.replace(/Copy$/, '').trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    alert('Failed to copy: ' + err);
+                });
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Code copied to clipboard!');
+                } catch (err) {
+                    alert('Failed to copy: ' + err);
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+    </script>
+
+
+doesn't work
+
+    <script>
+        function copyCode(button) {
+            const code = button.previousElementSibling.textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert("Code copied to clipboard!");
+                }).catch(err => {
+                    console.error("Failed to copy: ", err);
+                    fallbackCopy(code);
+                });
+            } else {
+                fallbackCopy(code);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand("copy");
+                alert("Code copied to clipboard!");
+            } catch (err) {
+                console.error("Fallback copy failed: ", err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+

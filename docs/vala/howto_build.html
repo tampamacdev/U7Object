@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U7Object Vala Project Build Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            color: #1a5276;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .note {
+            background-color: #fff8dc;
+            padding: 10px;
+            border-left: 4px solid #ffd700;
+            margin: 10px 0;
+        }
+        .warning {
+            background-color: #fff0f0;
+            padding: 10px;
+            border-left: 4px solid #ff6b6b;
+            margin: 10px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .platform {
+            font-weight: bold;
+            color: #1a5276;
+        }
+    </style>
+</head>
+<body>
+    <h1>U7Object Vala Project Build Guide</h1>
+    
+    <h2>Project Overview</h2>
+    <p>
+        This guide explains how to set up and build the U7Object Vala project, a cross-platform library 
+        providing core object functionality with GObject/GLib backend, JSON handling, and WebSocket support.
+    </p>
+
+    <h2>Prerequisites</h2>
+    <p>Depending on your platform, you'll need the following tools installed:</p>
+    <ul>
+        <li>Vala compiler (valac)</li>
+        <li>Meson build system</li>
+        <li>Ninja build tool</li>
+        <li>GLib and GObject libraries</li>
+        <li>Gee library for collections</li>
+        <li>JSON-GLib for JSON handling</li>
+    </ul>
+
+    <h2>Platform-Specific Setup</h2>
+    
+    <h3 class="platform">macOS Setup</h3>
+    <p>Run the following command to install all required dependencies using Homebrew:</p>
+    <pre>./target_setup_files/macos_setup.sh</pre>
+    <p>This script will install:</p>
+    <ul>
+        <li>Subversion (svn)</li>
+        <li>Vala compiler</li>
+        <li>Meson and Ninja build tools</li>
+    </ul>
+
+    <h3 class="platform">Linux (Ubuntu) Setup</h3>
+    <p>Run the following command to install all required dependencies:</p>
+    <pre>./target_setup_files/linux_setup.sh</pre>
+    <p>This script will install:</p>
+    <ul>
+        <li>Subversion (svn)</li>
+        <li>Vala compiler</li>
+        <li>Meson and Ninja build tools</li>
+        <li>Python3 and pip3</li>
+        <li>libgee-0.8-dev</li>
+    </ul>
+    <p>The script also performs version verification to ensure everything is installed correctly.</p>
+
+    <h3 class="platform">Windows Setup</h3>
+    <p>For Windows, you'll need to install MSYS2 first from <a href="https://www.msys2.org/">https://www.msys2.org/</a></p>
+    <p>Then, run the following script in the MSYS2 MinGW64 shell:</p>
+    <pre>./target_setup_files/windows_setup.sh</pre>
+    <p>This script will install:</p>
+    <ul>
+        <li>MinGW-w64 GCC compiler</li>
+        <li>Vala compiler</li>
+        <li>GLib, GObject, JSON-GLib, and libgee libraries</li>
+        <li>Meson, Ninja, and CMake build tools</li>
+        <li>Vim text editor</li>
+    </ul>
+    <p>Note: Always use the MinGW64 shell (mingw64.exe) to build your project on Windows.</p>
+
+    <h2>Building the Project</h2>
+
+    <h3>Understanding the Build Process</h3>
+    <p>The project uses a two-stage build process:</p>
+    <ol>
+        <li>First, it generates the <code>u7_api.h</code> header file using the <code>header_gen</code> subproject</li>
+        <li>Then, it builds the main project with the generated header</li>
+    </ol>
+
+    <h3>Build Commands</h3>
+    
+    <h4>Normal Build</h4>
+    <p>To build the project normally (when <code>u7_api.h</code> already exists):</p>
+    <pre>./buildrun.sh</pre>
+    <p>This will:</p>
+    <ol>
+        <li>Check if <code>u7_api.h</code> exists</li>
+        <li>Create a <code>build</code> directory if it doesn't exist</li>
+        <li>Run Meson setup if needed</li>
+        <li>Configure Meson with <code>include_c_bridge_code=true</code></li>
+        <li>Build the project with Ninja</li>
+        <li>Run the <code>websocket_endpoint</code> executable</li>
+    </ol>
+
+    <h4>Clean Build (Regenerate Header)</h4>
+    <p>To perform a clean build and regenerate the <code>u7_api.h</code> header:</p>
+    <pre>./buildrun.sh --reconfigure</pre>
+    <p>This will:</p>
+    <ol>
+        <li>Remove the existing <code>header_gen/u7_bridge.h</code> file if it exists</li>
+        <li>Copy <code>u7_bridge.h</code> to <code>header_gen/u7_bridge.h</code></li>
+        <li>Delete the existing build directory</li>
+        <li>Remove the existing <code>u7_api.h</code> file</li>
+        <li>Run the header generation process:
+            <ul>
+                <li>Change to the <code>header_gen</code> directory</li>
+                <li>Set up Meson in the header_gen directory</li>
+                <li>Build with Ninja to generate the <code>u7_api.h</code> header</li>
+            </ul>
+        </li>
+        <li>Copy the generated <code>u7_api.h</code> to the main project directory</li>
+        <li>Continue with the normal build process</li>
+    </ol>
+
+    <div class="note">
+        <p><strong>Note:</strong> The <code>--reconfigure</code> option is particularly useful when you've made changes to the Vala source files that affect the public API, as it regenerates the C header file that external code can use to interact with your Vala library.</p>
+    </div>
+
+    <h3>Build Configuration Options</h3>
+    <p>The project supports the following Meson build options:</p>
+    <table>
+        <tr>
+            <th>Option</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>track_object_alloc</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>Enable or disable object allocation tracking</td>
+        </tr>
+        <tr>
+            <td>include_c_bridge_code</td>
+            <td>boolean</td>
+            <td>true</td>
+            <td>Enable or disable C bridge code</td>
+        </tr>
+    </table>
+    
+    <div class="warning">
+        <p><strong>Important:</strong> Do not modify the <code>include_c_bridge_code</code> option. It must remain set to <code>true</code> as it controls how the header generation is orchestrated between the main project and the header generation subproject. Changing this value may break the build process and result in missing symbols or incompatible header files.</p>
+    </div>
+    
+    <p>You can set these options when running Meson setup:</p>
+    <pre>meson setup build -Dtrack_object_alloc=true -Dinclude_c_bridge_code=true</pre>
+
+    <h3>Project Structure</h3>
+    <p>The project consists of:</p>
+    <ul>
+        <li><strong>Vala source files</strong>: Core U7Object classes and WebSocket endpoint</li>
+        <li><strong>C source files</strong>: Mongoose WebSocket library, C bridge code, notification center</li>
+        <li><strong>Build scripts</strong>: Meson build definitions and shell scripts</li>
+        <li><strong>header_gen</strong>: Subproject for generating C headers from Vala sources</li>
+    </ul>
+
+    <h2>Running the Application</h2>
+    <p>After building, you can run the application with:</p>
+    <pre>./build/websocket_endpoint</pre>
+    
+    <p>For debugging, you can enable all GLib debug messages:</p>
+    <pre>G_MESSAGES_DEBUG=all ./build/websocket_endpoint</pre>
+
+    <div class="warning">
+        <p><strong>Warning:</strong> If you see an error message about missing <code>u7_api.h</code>, you need to run the build with the <code>--reconfigure</code> option first.</p>
+    </div>
+
+    <h2>Advanced Usage</h2>
+    
+    <h3>Manual Header Generation</h3>
+    <p>If you need to manually regenerate just the header without rebuilding everything:</p>
+    <pre>
+cd header_gen
+meson setup build
+cd build
+ninja
+cd ../..
+cp header_gen/build/u7_api.h .
+    </pre>
+
+    <h3>Manual Clean Build</h3>
+    <p>To manually clean and rebuild without using the script:</p>
+    <pre>
+rm -rf build
+rm u7_api.h  # if you want to regenerate the header
+./buildrun.sh --reconfigure  # or follow the manual header generation steps
+    </pre>
+
+    <footer>
+        <p>Generated for U7Object Vala Project - Copyright &copy; 2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,4 @@
+Vala is an excellent tool for rapid prototyping efficient C code, but I think describing valac as a compiler is a misnomer. What the real power of valac is is the ability to abstract the creation of complex procedural code with declarative instructions. Is this a fair assessment?
+
+so there needs to be new nomenclature to accurately describe the real type of abstraction that is going on. C compilers don't really highlight and encourage C programmers to inspect and leverage an understanding of assembly, but Vala and valac by it very design intent encourages Vala programmers to stay in tune with the capabilities of the lower level language supporting it. Is this a unique approach to a programming language design?
+

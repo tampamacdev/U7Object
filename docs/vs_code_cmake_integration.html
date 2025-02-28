@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code CMake Integration Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        strong {
+            font-weight: bold;
+        }
+        em {
+            font-style: italic;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+
+<body>
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+    <h1>Integrating CMake with VS Code for Cross-Platform Development</h1>
+    <p>This document outlines how to set up <strong>VS Code</strong> with <em>CMake</em> for a cross-platform tool using <code>glib</code> and <code>json-glib</code> on macOS, Linux and Windows, improving code completion and indexing.</p>
+
+    <h2>Why VS Code Struggles with Third-Party Libraries</h2>
+    <p>Unlike <strong>Xcode</strong> and <strong>Visual Studio</strong>, which can more easily index libraries (e.g., from Homebrew, vcpkg, or apt), VS Code relies on a language server (like <code>clangd</code>) and needs explicit configuration to detect libraries like <code>glib</code>. The goal is to tie your <code>CMakeLists.txt</code> to VS Code’s IntelliSense.</p>
+
+    <h2>Integrating CMake with VS Code</h2>
+    <p>Using the <strong>CMake Tools</strong> extension, you can integrate your build system for seamless indexing.</p>
+
+    <h2>Steps to Set Up</h2>
+    <ol>
+        <li>
+            <strong>Install Necessary Extensions (See <a href="./installing_vs_code_extensions.html">Installing VS Code Extentions</a> doc)</strong>
+            <ul>
+                <li><code>CMake Tools</code> (<code>ms-vscode.cmake-tools</code>): Manages CMake projects.</li>
+                <li><code>C/C++</code> (<code>ms-vscode.cpptools</code>): Provides C/C++ language server.</li>
+                <li>Optional: <code>CMake</code> (<code>twxs.cmake</code>) for syntax highlighting.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Configure Your Project</strong>
+            <p>Edit your <code>CMakeLists.txt</code>:</p>
+            <pre><code>cmake_minimum_required(VERSION 3.10)
+project(MyCrossPlatformTool)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(JSON_GLIB REQUIRED json-glib-1.0)
+
+add_executable(mytool src/main.c)
+target_include_directories(mytool PRIVATE ${GLIB_INCLUDE_DIRS} ${JSON_GLIB_INCLUDE_DIRS})
+target_link_directories(mytool PRIVATE ${GLIB_LIBRARY_DIRS} ${JSON_GLIB_LIBRARY_DIRS})
+target_link_libraries(mytool PRIVATE ${GLIB_LIBRARIES} ${JSON_GLIB_LIBRARIES})</code></pre>
+        </li>
+        <li>
+            <strong>Set Up VS Code</strong>
+            <p>Open your project, run <code>CMake: Configure</code> via <kbd>Ctrl+Shift+P</kbd>, and select “Unix Makefiles”. This generates <code>compile_commands.json</code>.</p>
+        </li>
+        <li>
+            <strong>Point VS Code to <code>compile_commands.json</code></strong>
+            <p>Add to <code>.vscode/settings.json</code>:</p>
+            <pre><code>{
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json"
+}</code></pre>
+        </li>
+        <li>
+            <strong>Build and Test</strong>
+            <p>Use <code>CMake: Build</code> in VS Code. Indexing should now include <code>glib</code> and <code>json-glib</code>.</p>
+        </li>
+    </ol>
+
+    <h2>Benefits of Integration</h2>
+    <ul>
+        <li><strong>Dynamic Indexing</strong>: Updates automatically with new libraries.</li>
+        <li><strong>Build Awareness</strong>: VS Code tracks builds like Xcode.</li>
+        <li><strong>Cross-Platform</strong>: Works on macOS and Linux.</li>
+        <li><strong>Debugging</strong>: Supports <code>gdb</code> via <code>launch.json</code>.</li>
+    </ul>
+
+    <h2>Potential Gotchas</h2>
+    <ul>
+        <li><em>Homebrew Paths</em>: Ensure CMake finds <code>/usr/local/Cellar</code> or <code>/opt/homebrew/Cellar</code>.</li>
+        <li><em>Linux Packages</em>: Install <code>libglib2.0-dev</code> and <code>libjson-glib-dev</code>.</li>
+    </ul>
+
+    <h2>Should You Integrate?</h2>
+    <p><strong>Yes</strong>. It’s worth it for better code completion and a unified workflow.</p>
+
+    <h2>Next Steps</h2>
+    <p>Set up CMake Tools, test autocompletion (e.g., type <code>g_</code>), and check the “Output” panel for errors if needed.</p>
+</body>
+</html>

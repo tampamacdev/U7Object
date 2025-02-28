@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubuntu CMake Project Setup</title>
+    <style>
+        .indented {
+            margin-left: 2em; /* Roughly one tab's worth of indentation */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul {
+            margin: 10px 0 10px 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+
+    <h1>Setting Up Ubuntu to Build a CMake Project</h1>
+    <p>Follow these steps to configure your Ubuntu environment for building a CMake project with GitHub integration, VS Code, and required dependencies.</p>
+
+    <h2>1. Create an SSH Key for GitHub</h2>
+    <p>Generate an SSH key to authenticate with GitHub:</p>
+    <pre>ssh-keygen -t ed25519 -C "youremail@gmail.com"</pre>
+    <p class="note">Note: You’ll be prompted to name your key (e.g., <code>YOUR_KEY_NAME</code>). Press Enter to accept the default location (~/.ssh/id_ed25519) or specify a custom name.</p>
+
+    <h2>2. Copy the Public Key to GitHub</h2>
+    <p>Copy your public key to the clipboard to add it to your GitHub account:</p>
+    <pre>cat ~/.ssh/YOUR_KEY_NAME.pub | xclip -selection clipboard</pre>
+    <p class="note">Note: Install <code>xclip</code> if not present: <code>sudo apt-get install xclip</code>.</p>
+    <p>Log into GitHub, go to <strong>Settings > SSH and GPG keys > New SSH key</strong>, paste the key, and save.</p>
+
+    <h2>3. Add an Alias to SSH Config</h2>
+    <p>Edit or create <code>~/.ssh/config</code> (e.g., with <code>nano ~/.ssh/config</code>) and add:</p>
+    <pre>Host github-YOUR_KEY_NAME
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/YOUR_KEY_NAME
+  IdentitiesOnly yes</pre>
+
+    <h2>4. Test the Alias</h2>
+    <p>Start the SSH agent and test the alias:</p>
+    <pre>eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/YOUR_KEY_NAME
+ssh -T github-YOUR_KEY_NAME</pre>
+    <p>Expected output: <code>Hi username! You've successfully authenticated...</code></p>
+
+    <h2>5. Clone the Repository</h2>
+    <ul>
+        <li>
+            <strong>Update Package Lists</strong>
+            <p>Ensure your package index is current:</p>    
+            <pre>sudo apt-get update</pre>
+        </li>
+    
+    <li>
+        <strong>Install Git</strong>
+        <p>Install Git if not already present:</p>
+        <pre>sudo apt-get install git</pre>
+    </li>
+    <li>
+
+    <p>Clone mmirand6-kraken/Kraken_CrossDomain_Gateway</p>
+    <pre>git clone git@github-YOUR_KEY_NAME:mmirand6-kraken/Kraken_CrossDomain_Gateway.git</pre>
+</li>
+
+</ul>
+
+    <h2>6. Set Up VS Code and Dependencies on Ubuntu</h2>
+
+
+    <ul>
+        <li>
+            <strong>Install CMake and Dependencies</strong>
+            <p>Use apt to install required tools and libraries:</p>
+            <p class="indented">Note: The "sudo apt-get install..." commands below are contained in a bash script in the WebSocketEndpoint project folder (WebSocketEndpoint). To run the setup script just "cd" into the WebSocketEndpoint directory in "Git Bash" and enter "./setup.sh"</p>
+
+            <pre>sudo apt-get install cmake
+sudo apt-get install libglib2.0-dev
+sudo apt-get install libjson-glib-dev
+sudo apt-get install libssl-dev</pre>
+            <p class="note">Note: These install to standard paths like <code>/usr/lib</code> and <code>/usr/include</code>, accessible to CMake.</p>
+        </li>
+        <li>
+            <strong>Install VS Code</strong>
+            <p>Download and install VS Code for Ubuntu from <a href="https://code.visualstudio.com">code.visualstudio.com</a>. Or use the terminal:</p>
+            <pre>sudo snap install --classic code</pre>
+        </li>
+        <li>
+            <strong>Configure VS Code</strong>
+            <p>Launch VS Code, open your repo folder (<strong>File > Open</strong>), and toggle the terminal panel (<strong>View > Terminal</strong>). The default shell (bash) works fine.</p>
+        </li>
+    </ul>
+
+    <h2>7. Build the Project</h2>
+    <p>Build your project in the terminal (replace <code>/path/to/your/project</code> with your repo path):</p>
+    <pre>cd /path/to/your/project
+mkdir build
+cd build
+cmake ..
+cmake --build .</pre>
+    <p>This configures and builds your project using the installed dependencies.</p>
+
+    <h2>Final Notes</h2>
+    <p>Ensure your <code>CMakeLists.txt</code> is set up to find <code>glib</code>, <code>json-glib</code>, and <code>openssl</code> (e.g., with <code>find_package</code> or <code>pkg_check_modules</code>). Test each step in the terminal to confirm it works before proceeding.</p>
+</body>
+</html>

@@ -1,0 +1,1 @@
+The folder "prompt_engineering" contains a history of the evolution of how the documentations was created using Grok and ChatGPT. This folder is only for keeping track of the history of how documentation was created. 

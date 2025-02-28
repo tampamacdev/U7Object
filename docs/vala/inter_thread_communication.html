@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threading in Vala with U7ThreadLoop</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #1557a0;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        h3 {
+            font-size: 1.25em;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            margin: 0 0 1em;
+        }
+        ul {
+            margin: 0 0 1em 2em;
+            padding: 0;
+        }
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+        pre {
+            position: relative;
+            background-color: #e5e5e5;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9em;
+            margin: 0 0 1em;
+        }
+        pre button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.2s;
+        }
+        pre button:hover {
+            background-color: #0d3a6b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 1em;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #e5e5e5;
+            color: #1557a0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./vala_project.html">Back</a>
+    </nav>
+
+    <h1>Getting Started with Threading in Vala Using U7ThreadLoop</h1>
+    <p>If you’re new to threading in Vala and want to add some multi-threaded magic to your application, the <code>U7ThreadLoop</code> class is here to help. This custom-built solution makes threading approachable by handling the tricky bits—like thread management and communication—for you. Built on top of a base class called <code>U7Object</code>, it uses GLib’s powerful tools to keep things simple and reliable. In this guide, we’ll explore how it works, how to create worker threads, and how to pass messages between them with ease.</p>
+
+    <h2>What Makes U7ThreadLoop Special?</h2>
+    <p>Threading can sound complicated, but <code>U7ThreadLoop</code> takes the stress out of it. Imagine you’re building an app that needs to listen for keyboard input in the background while keeping the main UI responsive. This class gives you a clean way to do that—and more. Here’s what it offers:</p>
+    <ul>
+        <li><strong>Easy Thread Creation:</strong> Spin up a thread with just a name and a call to <code>start()</code>.</li>
+        <li><strong>Safe Messaging:</strong> Send data between threads using an <code>AsyncQueue</code>, no locks required.</li>
+        <li><strong>Flexible Dispatch:</strong> Handle messages with a built-in system inherited from <code>U7Object</code>.</li>
+        <li><strong>Subclassing Made Simple:</strong> Extend it to create custom workers tailored to your needs.</li>
+    </ul>
+    <p>Let’s dive into these features and see how they come together.</p>
+
+    <h2>Key Features of the U7ThreadLoop API</h2>
+    <p>The <code>U7ThreadLoop</code> class is designed to be your go-to tool for threading. Here’s a breakdown of what it can do and how it simplifies your work.</p>
+
+    <h3>Starting and Managing Threads</h3>
+    <p>Creating a thread is straightforward. You give it a name, and <code>U7ThreadLoop</code> sets up a GLib <code>MainLoop</code> to keep it running. It even assigns a unique ID to each thread so you can track them. To get a thread going, all you need is this:</p>
+    <pre>
+var worker = new U7ThreadLoop("BackgroundWorker");
+worker.start();
+<button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>Behind the scenes, <code>U7ThreadLoop</code> handles the thread’s lifecycle. It uses a private <code>thread_func</code> to initialize the thread, set up its message queue, and start the loop. You don’t need to worry about the low-level details—just call <code>start()</code> and you’re off.</p>
+
+    <h3>Passing Messages Between Threads</h3>
+    <p>Need to send data from one thread to another? That’s where the <code>AsyncQueue<U7Dictionary></code> shines. This queue lets you push messages (stored as <code>U7Dictionary</code> objects) from one thread and pop them in another, all without manual synchronization. The <code>U7Dictionary</code> is a handy key-value store, perfect for structured payloads.</p>
+    <p>To send a message, use <code>publishOnThread()</code>. Here’s an example:</p>
+    <pre>
+var payload = new U7Dictionary.with_pairs("action", new U7String("compute"), null);
+worker.publishOnThread("task", payload);
+<button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>The receiving thread processes these messages in its <code>process_messages()</code> method, which runs in an idle handler. It checks the queue, pulls out messages, and dispatches them based on their “publication_name” key. It’s a clean, safe way to communicate across threads.</p>
+
+    <h3>Message Dispatch with U7Object</h3>
+    <p>Since <code>U7ThreadLoop</code> inherits from <code>U7Object</code>, it gets a slick message dispatch system for free. You can subscribe to specific message types and define how to handle them. When a message arrives, <code>U7Object</code>’s <code>invoke_method()</code> calls the right handler based on the message name.</p>
+    <p>Here’s how you might set up a handler:</p>
+    <pre>
+worker.subscribe("task", (self, arg) => {
+    string action = ((U7String)arg.value["action"]).to_string();
+    stdout.printf("Handling task: %s\n", action);
+});
+<button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>This ties into the <code>U7NotificationCenter</code>, which broadcasts messages across all registered threads—perfect for app-wide events.</p>
+
+    <h3>Creating Custom Worker Threads</h3>
+    <p>The real power of <code>U7ThreadLoop</code> comes when you subclass it. By overriding methods like <code>threadEntrySetup()</code> and <code>run()</code>, you can build workers for specific tasks. Take the <code>U7KeyboardInputMonitor</code> as an example—it listens for keyboard input and publishes it as messages.</p>
+    <p>Here’s a simplified version of how it’s built:</p>
+    <pre>
+public class U7KeyboardInputMonitor : U7ThreadLoop {
+    public U7KeyboardInputMonitor(string name) {
+        base(name);
+    }
+
+    public override void run() {
+        stdout.printf("Starting input monitor\n");
+        while (true) {
+            char buffer[1024];
+            ssize_t bytes = Posix.read(0, buffer, buffer.length);
+            if (bytes > 0) {
+                string input = (string)buffer[0:bytes-1];
+                var info = new U7Dictionary.with_pairs("input", new U7String(input), null);
+                U7NotificationCenter.default().publish("keyboard_input", info);
+            }
+        }
+    }
+}
+<button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>Start it with <code>new U7KeyboardInputMonitor("InputThread").start()</code>, and it’s ready to go. You can extend this pattern for any worker—data processors, network listeners, whatever you need.</p>
+
+    <h2>Putting It All Together</h2>
+    <p>Let’s see a quick example combining these features. Imagine you want a worker thread that processes tasks sent from the main thread:</p>
+    <pre>
+public class TaskWorker : U7ThreadLoop {
+    public TaskWorker(string name) {
+        base(name);
+        subscribe("task", (self, arg) => {
+            string task = ((U7String)arg.value["action"]).to_string();
+            stdout.printf("Worker %s processing: %s\n", get_name(), task);
+        });
+    }
+}
+
+void main() {
+    U7ThreadLoop.init();
+    var worker = new TaskWorker("TaskProcessor");
+    worker.start();
+
+    var task = new U7Dictionary.with_pairs("action", new U7String("compute"), null);
+    worker.publishOnThread("task", task);
+
+    U7ThreadLoop.startMainEventLoop();
+}
+<button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>This sets up a worker, sends it a task, and keeps the main thread running. The <code>AsyncQueue</code> and dispatch system handle the rest.</p>
+
+    <h2>API Reference Highlights</h2>
+    <p>Here’s a quick look at some key methods you’ll use:</p>
+    <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>U7ThreadLoop.start()</code></td><td>Launches the thread and starts its event loop.</td></tr>
+        <tr><td><code>publishOnThread(string name, U7Dictionary info)</code></td><td>Sends a message to the thread’s queue.</td></tr>
+        <tr><td><code>subscribe(string name, handler)</code></td><td>Registers a handler for a specific message type.</td></tr>
+        <tr><td><code>threadEntrySetup()</code></td><td>Override to set up your thread (called automatically).</td></tr>
+        <tr><td><code>run()</code></td><td>Override to define the thread’s main behavior.</td></tr>
+    </table>
+
+    <h2>Final Thoughts</h2>
+    <p>With <code>U7ThreadLoop</code>, threading in Vala doesn’t have to be a headache. It gives you a solid foundation to build on, whether you’re just running background tasks or creating a full-blown multi-threaded app. Play around with subclassing, experiment with message passing, and see how it fits into your projects. The simplicity is there to set you free—so go build something cool!</p>
+
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const text = pre.textContent.replace(/Copy$/, '').trim();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = "Copied!";
+                    setTimeout(() => button.textContent = "Copy", 2000);
+                });
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                button.textContent = "Copied!";
+                setTimeout(() => button.textContent = "Copy", 2000);
+            }
+        }
+    </script>
+</body>
+</html>

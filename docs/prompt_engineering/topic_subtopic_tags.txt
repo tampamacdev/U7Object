@@ -1,0 +1,9 @@
+I'm going to introduce two custom tags for dividing this conversation into a logic tree structure. Here are the two tags.
+
+<CHAT_TOPIC>
+</CHAT_TOPIC>
+
+The spirit of these two tags is similar to how 
+
+ tag is going to be called a boundary of division of the conversation we are having. The token is the sequence of characters <CHAT_BOUNDARY>. Whenever you see this tag, register it as a distinct division of this conversation. I'm doing this to let you know I'm transitioning to a distinct subtopic to the current topic.
+

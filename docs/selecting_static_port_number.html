@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guidelines for Selecting Static Port Numbers in Custom Network Services</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+
+    <h1>Guidelines for Selecting Static Port Numbers in Custom Network Services</h1>
+    <p>Choosing a static port number for a custom network service demands attention to avoid conflicts with reserved ranges, ephemeral port assignments, and ports used by established services. This document offers detailed guidance for system administrators and network programmers, whether familiar with drone protocols like MAVLink or general-purpose services like Redis. It covers avoiding the privileged range (0–1023), steering clear of the OS ephemeral port pool, and selecting ports distinct from popular defaults such as MAVLink’s 5760, Redis’s 6379, PostgreSQL’s 5432, and MongoDB’s 27017.</p>
+
+    <h2>Port Number Categories and Their Implications</h2>
+    <p>The TCP/UDP port space (0–65535) is segmented into three ranges by the Internet Assigned Numbers Authority (IANA):</p>
+    <ul>
+        <li><strong>0–1023: System Ports (Well-Known Ports)</strong> - Assigned to core services (e.g., HTTP on 80, SSH on 22). These require root privileges to bind on Unix-like systems, making them unsuitable for non-privileged custom services.</li>
+        <li><strong>1024–49151: User Ports (Registered Ports)</strong> - Used for application-specific services, some IANA-registered (e.g., PostgreSQL on 5432), others informally claimed. This is the primary range for custom static ports.</li>
+        <li><strong>49152–65535: Dynamic Ports (Private Ports)</strong> - Reserved by IANA for temporary or private use, often overlapping with OS ephemeral assignments. Static use here risks conflicts.</li>
+    </ul>
+    <p>These distinctions guide port selection to ensure compatibility and security across diverse systems.</p>
+
+    See <a href="./iana_breakdown/index.html">IANA breakdown</a> of registered port numbers.
+    <h2>Bypassing the Privileged Port Range (0–1023)</h2>
+    <p>Ports 0–1023 are restricted to privileged processes on Unix-like systems (e.g., Linux). The kernel enforces this via the <code>bind()</code> system call, returning <code>EACCES</code> (Permission Denied) for non-root users attempting to bind here. Example:</p>
+    <pre><code>#include <sys/socket.h>
+#include <netinet/in.h>
+int sock = socket(AF_INET, SOCK_STREAM, 0);
+struct sockaddr_in addr = { .sin_family = AF_INET, .sin_port = htons(80), .sin_addr.s_addr = INADDR_ANY };
+int ret = bind(sock, (struct sockaddr*)&addr, sizeof(addr)); // Fails with EACCES unless root
+</code></pre>
+    <p>For custom services running without elevated privileges:</p>
+    <ul>
+        <li><strong>Use Ports ≥ 1024:</strong> Binding to a port like 8080 avoids permission issues, unlike 80, which demands <code>sudo</code> or capabilities (e.g., <code>CAP_NET_BIND_SERVICE</code>).</li>
+        <li><strong>Avoid Port 0 as Static:</strong> Port 0 is reserved for dynamic assignment, not fixed use—more on this below.</li>
+        <li><strong>Documentation Note:</strong> Specify in your service’s setup guide that the port is non-privileged, aiding users in restricted environments (e.g., containers, shared servers).</li>
+    </ul>
+
+    <h2>Understanding and Avoiding Ephemeral Port Ranges</h2>
+    <p><strong>Ephemeral Ports Defined:</strong> Ephemeral ports, also termed temporary or dynamic ports, are assigned by the operating system to sockets lacking a fixed port number. This occurs when a program calls <code>bind()</code> with <code>sin_port = htons(0)</code>, typically for client-side connections (e.g., a browser’s source port) or servers needing a transient listener. The kernel selects an unused port from its ephemeral range, which can be queried post-binding with <code>getsockname()</code>:</p>
+    <pre><code>#include <sys/socket.h>
+#include <netinet/in.h>
+int sock = socket(AF_INET, SOCK_STREAM, 0);
+struct sockaddr_in addr = { .sin_family = AF_INET, .sin_port = htons(0), .sin_addr.s_addr = INADDR_ANY };
+bind(sock, (struct sockaddr*)&addr, sizeof(addr));
+socklen_t len = sizeof(addr);
+getsockname(sock, (struct sockaddr*)&addr, &len);
+printf("Assigned ephemeral port: %d\n", ntohs(addr.sin_port));
+</code></pre>
+    <p><strong>Default Ephemeral Ranges:</strong> These vary by OS:</p>
+    <ul>
+        <li><strong>Linux (e.g., Ubuntu):</strong> 32768–60999, controlled by <code>net.ipv4.ip_local_port_range</code>. Check with <code>sysctl net.ipv4.ip_local_port_range</code>. This yields 28,232 ports.</li>
+        <li><strong>Windows:</strong> 49152–65535 by default, adjustable via registry (<code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>).</li>
+        <li><strong>Configurability:</strong> On Linux, admins can modify this with <code>sysctl -w net.ipv4.ip_local_port_range="1024 65535"</code>, persisted in <code>/etc/sysctl.conf</code>.</li>
+    </ul>
+    <p><strong>Avoiding Overlap:</strong> A static port within the ephemeral range risks being assigned to another process, causing an <code>EADDRINUSE</code> (Address Already in Use) error when your service attempts to bind. Mitigation strategies:</p>
+    <ul>
+        <li><strong>Target 1024–32767 on Linux:</strong> Below the default ephemeral range (32768–60999), this avoids overlap on stock systems.</li>
+        <li><strong>Inspect System Settings:</strong> Run <code>cat /proc/sys/net/ipv4/ip_local_port_range</code> to confirm the range. A widened setting (e.g., 1024–65535) includes lower ports, requiring adjustment.</li>
+        <li><strong>Check Port Usage:</strong> Use <code>ss -tuln | grep 5777</code> or <code>netstat -tuln | grep 5777</code> to verify your port isn’t dynamically taken during runtime.</li>
+        <li><strong>Minimize 49152–65535 Use:</strong> This IANA dynamic range aligns with Windows defaults and some Linux configs, heightening conflict risk in multi-OS setups.</li>
+    </ul>
+
+    <h2>Strategies for Selecting Static Ports to Avoid Public Services</h2>
+    <p>Many services—both general-purpose and domain-specific—use well-known ports, either IANA-registered or by convention. Examples include MAVLink (5760/udp for drone control), Redis (6379/tcp for key-value storage), PostgreSQL (5432/tcp for relational databases), and MongoDB (27017/tcp for NoSQL databases).</p>
+    <p><strong>Conflict Risks:</strong> Binding to an in-use port (e.g., 5760 while MAVLink runs) triggers <code>EADDRINUSE</code>, disrupting one or both services. Strategies to avoid this:</p>
+    <ul>
+        <li><strong>Research Established Ports:</strong> Cross-reference the IANA registry (<a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml">iana.org</a>) and community documentation. Notable examples:
+            <ul>
+                <li><strong>MAVLink (ArduPilot):</strong> 5760/udp—default for Software-in-the-Loop (SITL) in drone ecosystems; 5761–5763 for additional instances.</li>
+                <li><strong>Redis:</strong> 6379/tcp—default for the in-memory data store, widely used in web applications.</li>
+                <li><strong>PostgreSQL:</strong> 5432/tcp—standard for this relational database, common in enterprise systems.</li>
+                <li><strong>MongoDB:</strong> 27017/tcp—default for this NoSQL database, popular in modern stacks.</li>
+            </ul>
+        </li>
+        <li><strong>Select a Distinct Port:</strong> Opt for an uncommon number like 5777, 12345, or 25000. Avoid “round” numbers (e.g., 5000, 8000) often picked by frameworks.</li>
+        <li><strong>Enable Configurability:</strong> Set a default (e.g., 5777) but support overrides via CLI, env vars, or configs. Example in Python:
+            <pre><code>import socket
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--port", type=int, default=5777, help="Listening port")
+args = parser.parse_args()
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('0.0.0.0', args.port))
+</code></pre>
+        </li>
+        <li><strong>Validate Availability:</strong> Test your port during development:
+            <pre><code>#include <sys/socket.h>
+#include <netinet/in.h>
+int sock = socket(AF_INET, SOCK_STREAM, 0);
+struct sockaddr_in addr = { .sin_family = AF_INET, .sin_port = htons(5777), .sin_addr.s_addr = INADDR_ANY };
+if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
+    perror("Bind failed"); // Logs EADDRINUSE if 5777 is taken
+}
+</code></pre>
+        </li>
+        <li><strong>Stake a Claim:</strong> For widely adopted services, register with IANA (e.g., 5777/tcp for “CustomService”) and note it in <code>/etc/services</code> locally (advisory only).</li>
+    </ul>
+    <p>For MAVLink users, 5760 is a known drone telemetry port; for others, Redis (6379), PostgreSQL (5432), and MongoDB (27017) are equally critical to avoid in their respective domains.</p>
+
+    <h2>Recommended Practices</h2>
+    <p>For Linux with default ephemeral settings (32768–60999):</p>
+    <ul>
+        <li><strong>Safe Range:</strong> 1024–32767.</li>
+        <li><strong>Suggested Port:</strong> 5777—non-privileged, below ephemeral, and distinct from MAVLink (5760), Redis (6379), PostgreSQL (5432), and MongoDB (27017).</li>
+        <li><strong>Selection Process:</strong>
+            <ol>
+                <li>Exclude 0–1023 (privileged).</li>
+                <li>Verify ephemeral range via <code>sysctl net.ipv4.ip_local_port_range</code>.</li>
+                <li>Avoid MAVLink (5760–5763), Redis (6379), PostgreSQL (5432), MongoDB (27017).</li>
+                <li>Confirm with <code>ss -tuln | grep 5777</code>.</li>
+                <li>Set 5777 as default, with override support.</li>
+            </ol>
+        </li>
+    </ul>
+    <p>This ensures compatibility with drone tools like MAVLink and general services like databases, catering to both audiences effectively.</p>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Ignore Node.js modules installed locally
+node_modules/
+
+# Ignore npm/yarn lockfiles (optional, include if you don’t want to commit them)
+package-lock.json
+yarn.lock
+
+# Ignore logs and temporary files (optional, good practice)
+npm-debug.log
+*.log
+
+# Ignore output files from your script (optional, adjust as needed)
+ports.json
+
+# Ignore local environment config (optional, if you add one later)
+.env

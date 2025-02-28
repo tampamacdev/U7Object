@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setting MinGW64 as the Default Terminal in VS Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Setting MinGW64 as the Default Terminal in VS Code</h1>
+
+    <p>MinGW64 is a development environment for Windows that allows you to build native Windows applications using the GCC compiler. Setting it as the default terminal in Visual Studio Code (VS Code) enables you to use Unix-like commands and tools seamlessly within your editor.</p>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>MSYS2 installed on your Windows system with the MinGW64 environment. If you haven’t installed it yet, visit the <a href="https://www.msys2.org/">MSYS2 website</a> for installation instructions.</li>
+    </ul>
+
+    <h2>Instructions</h2>
+    <ol>
+        <li>Open VS Code.</li>
+        <li>Navigate to <strong>File > Preferences > Settings</strong> (or press <code>Ctrl + ,</code>).</li>
+        <li>In the Settings tab, click the "Open Settings (JSON)" icon in the top-right corner.</li>
+        <li>In the <code>settings.json</code> file, add the following code inside the main object (if the properties already exist, modify them accordingly):</li>
+        <pre><code>"terminal.integrated.profiles.windows": {
+    "MinGW64": {
+        "path": "C:\\msys64\\usr\\bin\\bash.exe",
+        "args": ["--login", "-i"],
+        "env": {
+            "MSYSTEM": "MINGW64",
+            "CHERE_INVOKING": "1"
+        }
+    }
+},
+"terminal.integrated.defaultProfile.windows": "MinGW64"</code></pre>
+        <li>If MSYS2 is installed in a different directory, replace <code>"C:\\msys64"</code> with the correct path (e.g., <code>"D:\\Tools\\msys64"</code>).</li>
+        <li>Save the <code>settings.json</code> file.</li>
+    </ol>
+
+    <p>After completing these steps, opening a new terminal in VS Code (using <code>Ctrl + `</code>) will launch the MinGW64 shell by default.</p>
+
+    <h2>Verification</h2>
+    <p>To confirm that MinGW64 is set as the default terminal:</p>
+    <ol>
+        <li>Open a new terminal in VS Code.</li>
+        <li>Run the following command:</li>
+        <pre><code>echo $MSYSTEM</code></pre>
+        <li>Check the output. It should display <code>MINGW64</code>.</li>
+        <li>For additional confirmation, run:</li>
+        <pre><code>gcc --version</code></pre>
+        <li>This should display the version of GCC installed in your MinGW64 environment.</li>
+    </ol>
+
+    <hr>
+
+    <p><em>Note:</em> To switch to a different terminal later, modify the <code>"terminal.integrated.defaultProfile.windows"</code> setting in <code>settings.json</code> to the desired profile (e.g., "PowerShell" or "cmd").</p>
+</body>
+</html>
+
+

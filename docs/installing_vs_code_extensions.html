@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding an HTML Viewer to VS Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        strong {
+            font-weight: bold;
+        }
+        em {
+            font-style: italic;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav><a href="./index.html">Home</a></nav>
+
+    <h1>Installing VS Code Extensions</h1>
+    VS Code extensions allow you to add features like code suggestions, function signature help, debugging tools, and build support, turning VS Code into a more capable IDE. Below is an example of how to install an extension.
+
+    <h2>Adding an HTML Viewer to VS Code</h2>
+
+    <p>This guide explains how to set up a live HTML preview in <strong>VS Code</strong> to view documentation, such as locally saved <em>HTML</em> files, directly within the editor.</p>
+
+    <h2>Why Use an HTML Viewer in VS Code?</h2>
+    <p>Instead of opening HTML files in a separate browser, a live preview lets you see rendered content alongside your code, updating in real-time as you edit. This is ideal for reviewing documentation or prototyping web pages.</p>
+
+    <h2>Recommended Tool: Live Preview Extension</h2>
+    <p>The <strong>Live Preview</strong> extension by Microsoft is lightweight, actively maintained, and perfect for rendering HTML files within VS Code.</p>
+
+    <h2>Steps to Set Up</h2>
+    <ol>
+        <li>
+            <strong>Install the Live Preview Extension</strong>
+            <ul>
+                <li>In VS Code, press <kbd>Ctrl+Shift+X</kbd> (or <kbd>Cmd+Shift+X</kbd> on macOS) to open the Extensions view.</li>
+                <li>Search for <code>Live Preview</code>.</li>
+                <li>Click <strong>Install</strong> on the extension by Microsoft (<code>ms-vscode.live-server</code>).</li>
+            </ul>
+        </li>
+        <li>
+            <strong>Open Your HTML File</strong>
+            <p>Open the HTML file you want to preview (e.g., <code>cmake-vscode-docs.html</code>) in the VS Code editor.</p>
+        </li>
+        <li>
+            <strong>Start the Preview</strong>
+            <ul>
+                <li>Right-click anywhere in the HTML file.</li>
+                <li>Select <code>Show Preview</code> from the context menu.</li>
+                <li>Alternatively, press <kbd>Ctrl+Shift+P</kbd> (or <kbd>Cmd+Shift+P</kbd>), type <code>Live Preview: Show Preview</code>, and hit Enter.</li>
+            </ul>
+            <p>A preview pane will open within VS Code, rendering the HTML content.</p>
+        </li>
+        <li>
+            <strong>Enable Live Updates (Optional)</strong>
+            <p>The preview updates automatically as you edit the HTML file, thanks to an embedded server running at <code>http://127.0.0.1

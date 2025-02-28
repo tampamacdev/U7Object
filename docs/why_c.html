@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why C for Demonstration Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+            text-align: justify;
+        }
+        .section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+
+    <h1>Why C for Example Code</h1>
+
+    <div class="section">
+        <h2>Overview</h2>
+        <p>
+            The C programming language was selected for developing remote communication demonstration code due to its low-level capabilities, performance efficiency, and suitability for embedded hardware-related tasks. Below, we outline the key reasons for this choice.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Low-Level Control and Hardware Access</h2>
+        <p>
+            C provides minimal abstraction between the code and the underlying hardware, offering direct control over system resources. Features such as pointer manipulation and manual memory management (e.g., using <code>malloc</code> and <code>free</code>) allow developers to interact closely with hardware, making it ideal for performance-critical components of the project that may involve kernel-level operations or hardware drivers.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Performance Optimization</h2>
+        <p>
+            Unlike higher-level languages that rely on virtual machines or garbage collection (e.g., Java or Python), C compiles directly to machine code. This eliminates runtime overhead and enables fine-grained optimization, which is essential for demonstration code where efficiency and speed are paramount. The ability to perform bitwise operations further enhances its suitability for low-level, performance-sensitive tasks.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Portability Across Platforms</h2>
+        <p>
+            C’s portability ensures that the demonstration code can be adapted to various hardware architectures without sacrificing its low-level advantages. This is particularly valuable in a collaborative project involving diverse tech companies and university teams, where different systems and environments may be in use. A single CMake project can be effortlessly configured, built, and executed across diverse platforms, including macOS/Unix/Linux and Windows.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Proven Use in Systems Programming</h2>
+        <p>
+            C is a proven choice for systems programming, as evidenced by its widespread use in developing operating system kernels (e.g., Linux), device drivers, and embedded systems. Its adoption in such critical applications underscores its reliability and effectiveness for the type of demonstration code required in this research project.
+        </p>
+    </div>
+    <div class="section">
+        <h2>Benefits for Resource-Restricted Embedded Systems</h2>
+        <p>
+            C is exceptionally well-suited for resource-constrained embedded systems, which may be relevant to this project’s demonstration code. Its small runtime footprint and lack of dependencies on heavy runtime environments ensure efficient use of limited memory and processing power. Developers can write compact, optimized code tailored to the specific constraints of embedded hardware, such as microcontrollers, where every byte and cycle counts. This makes C a practical choice for showcasing functionality in real-world embedded applications.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Considerations</h2>
+        <p>
+            While C’s lack of built-in safety features (e.g., no automatic bounds checking) requires careful coding to avoid errors like buffer overflows, its benefits in performance and control outweigh these trade-offs for the purposes of this project.
+        </p>
+    </div>
+
+    <footer>
+        <p>Document prepared for Meshed AUV STTR, February 19, 2025.</p>
+    </footer>
+</body>
+</html>

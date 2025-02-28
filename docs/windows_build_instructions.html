@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows CMake Project Setup</title>
+    <style>
+        .indented {
+            margin-left: 2em; /* Roughly one tab's worth of indentation */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul {
+            margin: 10px 0 10px 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./index.html">Home</a>
+    </nav>
+
+    <h1>Setting Up Windows to Build a CMake Project</h1>
+    <p>Follow these steps to configure your Windows environment for building a CMake project with GitHub integration, VS Code, and required dependencies.</p>
+
+    <h2>1. Create an SSH Key for GitHub</h2>
+    <p>Generate an SSH key to authenticate with GitHub:</p>
+    <pre>ssh-keygen -t ed25519 -C "youremail@gmail.com"</pre>
+    <p class="note">Note: You’ll be prompted to name your key (e.g., <code>YOUR_KEY_NAME</code>). Press Enter to accept the default location or specify a custom name.</p>
+
+    <h2>2. Copy the Public Key to GitHub</h2>
+    <p>Copy your public key to the clipboard to add it to your GitHub account:</p>
+    <pre>cat ~/.ssh/YOUR_KEY_NAME.pub | clip</pre>
+    <p>Log into GitHub, go to <strong>Settings > SSH and GPG keys > New SSH key</strong>, paste the key, and save.</p>
+
+    <h2>3. Add an Alias to SSH Config</h2>
+    <p>Edit or create <code>~/.ssh/config</code> in Git Bash and add:</p>
+    <pre>Host github-YOUR_KEY_NAME
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/YOUR_KEY_NAME
+  IdentitiesOnly yes</pre>
+
+    <h2>4. Test the Alias</h2>
+    <p>Verify the SSH alias works:</p>
+    <pre>ssh -T github-YOUR_KEY_NAME</pre>
+    <p>Expected output: <code>Hi username! You've successfully authenticated...</code></p>
+
+    <h2>5. Clone the Repository</h2>
+
+    <ul>
+        <li>
+            <strong>Install Git Bash and VS Code</strong>
+            <p>Download and install Git for Windows (includes Git Bash) from <a href="https://git-scm.com">git-scm.com</a>. Then install VS Code from <a href="https://code.visualstudio.com">code.visualstudio.com</a>.</p>
+        </li>
+
+        <li>
+            <strong>Clone mmirand6-kraken/Kraken_CrossDomain_Gateway</strong>
+
+            <pre>git clone git@github-YOUR_KEY_NAME:mmirand6-kraken/Kraken_CrossDomain_Gateway.git</pre>
+        
+        </li>
+    
+    </ul>
+
+    <h2>6. Set Up VS Code and Dependencies on Windows</h2>
+    <ul>
+        <li>
+            <strong>Install CMake</strong>
+            <p>Download from <a href="https://cmake.org/download">cmake.org/download</a>. Look for a version like <code>cmake-3.28.x-windows-x86_64.msi</code> (x86_64). Run the installer and check “Add CMake to the system PATH for all users.”</p>
+        </li>
+        <li>
+            <strong>Install vcpkg</strong>
+            <p>Set up vcpkg to manage dependencies:</p>
+            <p class="indented">Note: The clone vcpkg and "./vcpkg install..." commands below are contained in a bash script in the WebSocketEndpoint project folder (WebSocketEndpoint). To run the setup script just "cd" into the WebSocketEndpoint directory in "Git Bash" and enter "./setup.sh"</p>
+
+            <pre>git clone https://github.com/microsoft/vcpkg.git C:/Dev/vcpkg
+cd C:/Dev/vcpkg
+./bootstrap-vcpkg.bat</pre>
+            <p>Install required libraries:</p>
+            <pre>./vcpkg install glib:x64-windows
+./vcpkg install json-glib:x64-windows
+./vcpkg install openssl:x64-windows</pre>
+        </li>
+        <li>
+            <strong>Add to PATH</strong>
+            <p>In Git Bash, update your PATH (CMake installs to <code>/c/Program Files/CMake/bin</code>):</p>
+            <pre>export PATH="$PATH:/c/Program Files/CMake/bin:/c/Dev/vcpkg"</pre>
+            <p class="note">Note: Add this to <code>~/.bashrc</code> for permanence: <code>echo 'export PATH="$PATH:/c/Program Files/CMake/bin:/c/Dev/vcpkg"' >> ~/.bashrc</code> and run <code>source ~/.bashrc</code>.</p>
+        </li>
+        <li>
+            <strong>Configure VS Code</strong>
+            <p>Launch VS Code, open your repo folder (<strong>File > Open Folder</strong>), and toggle the terminal panel (<strong>View > Terminal</strong>). Click the <code>+</code> icon in the terminal panel and select “Git Bash” as the shell.</p>
+        </li>
+    </ul>
+
+    <h2>7. Build the Project</h2>
+    <p>After installing everything, build your project in Git Bash (replace <code>/c/path/to/your/project</code> with your repo path):</p>
+    <pre>cd /c/path/to/your/project
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=C:/Dev/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build .</pre>
+    <p>This configures and builds your project using vcpkg’s dependencies.</p>
+
+    <h2>Final Notes</h2>
+    <p>Ensure all paths match your system (e.g., adjust <code>C:/Dev/vcpkg</code> if you cloned it elsewhere). Test each step in Git Bash to confirm it works before proceeding.</p>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mongoose Embedded Web Server Overview</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #1557a0;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            margin: 0 0 1em;
+        }
+        ul {
+            margin: 0 0 1em;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre {
+            position: relative;
+            background-color: #e5e5e5;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1em 0;
+        }
+        pre button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #1557a0;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        pre button:hover {
+            background-color: #0d3d7a;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="./vala_project.html">Back</a>
+    </nav>
+
+    <h1>Mongoose Embedded Web Server Overview</h1>
+
+    <h2>A Brief History of Mongoose</h2>
+    <p>
+        The Mongoose Embedded Web Server began its journey in 2004 as a simple, single-click-to-run executable known as SHTTPD. Initially hosted on SourceForge, it was designed to provide a lightweight web server solution for platforms like *BSD, Linux, and Windows. Over time, it evolved significantly, adopting the name "Mongoose" and moving to repositories like Google Code and eventually GitHub. What started as a standalone server has transformed into a robust embedded networking library, gaining widespread adoption in the embedded systems community. Today, Mongoose supports a variety of protocols such as HTTP, WebSocket, and MQTT, and it powers devices ranging from IoT appliances to systems aboard the International Space Station.
+    </p>
+
+    <h2>Benefits as a Lightweight Embedded Web Service</h2>
+    <p>
+        Mongoose stands out as an ideal choice for embedded systems due to its lightweight design and versatility. Its small footprint—often under 40kB—makes it perfect for resource-constrained devices like microcontrollers and IoT hardware. Here are some key benefits:
+    </p>
+    <ul>
+        <li><strong>Minimal Resource Usage:</strong> With a core size of less than 40kB and a minimal runtime footprint, Mongoose ensures efficient operation on devices with limited memory and processing power.</li>
+        <li><strong>Cross-Platform Compatibility:</strong> It runs seamlessly on a wide range of platforms, from Windows and Linux to embedded architectures like STM32 and ESP32, simplifying development across diverse systems.</li>
+        <li><strong>Easy Integration:</strong> Developers can embed Mongoose into a project by including just two files—<code>mongoose.c</code> and <code>mongoose.h</code>—making it straightforward to add web server capabilities.</li>
+        <li><strong>Non-Blocking APIs:</strong> Its event-driven, non-blocking architecture ensures high performance without overwhelming the system, ideal for real-time applications.</li>
+    </ul>
+    <p>
+        For example, integrating Mongoose into an embedded application might look like this simple snippet:
+    </p>
+    <pre>
+#include &lt;mongoose.h&gt;
+
+static void handler(struct mg_connection *c, int ev, void *ev_data) {
+    if (ev == MG_EV_HTTP_MSG) {
+        mg_http_reply(c, 200, "", "Hello, World!\n");
+    }
+}
+
+int main() {
+    struct mg_mgr mgr;
+    mg_mgr_init(&mgr);
+    mg_http_listen(&mgr, "http://0.0.0.0:8000", handler, NULL);
+    for (;;) mg_mgr_poll(&mgr, 1000);
+    return 0;
+}
+        <button onclick="copyCode(this)">Copy</button>
+    </pre>
+    <p>
+        This code sets up a basic HTTP server that responds with "Hello, World!"—a testament to Mongoose’s simplicity and power in embedded environments. Its lightweight nature not only saves resources but also accelerates development, making it a go-to solution for modern embedded web services.
+    </p>
+
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const code = pre.textContent.replace(/Copy$/, '').trim(); // Remove button text
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    fallbackCopy(code);
+                });
+            } else {
+                fallbackCopy(code);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Code copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

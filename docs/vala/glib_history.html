@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History of GLib and JSON-GLib</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #1557a0;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 1.5em;
+        }
+        strong {
+            font-weight: 600;
+        }
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 15px;
+            border-radius: 5px;
+            position: relative;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.9em;
+        }
+        pre button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        pre button:hover {
+            background-color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #e5e5e5;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="./vala_project.html">Back</a>
+    </nav>
+
+    <h1>A Brief History of GLib and JSON-GLib</h1>
+    <p>
+        This page provides a concise overview of the origins and evolution of two important libraries in the world of C programming: <strong>GLib</strong> and <strong>JSON-GLib</strong>.
+    </p>
+
+    <h2>GLib</h2>
+    <p>
+        GLib is a general-purpose utility library that offers essential tools like data structures, threading, and file handling for C programs. It began in the mid-1990s as part of the <a href="https://www.gtk.org/">GTK</a> project, a toolkit for creating graphical user interfaces. Originally developed by Peter Mattis, Spencer Kimball, and Josh MacDonald, GLib was designed to support GTK but quickly grew beyond that role. By the late 1990s, it had become a standalone library, widely used in the <a href="https://www.gnome.org/">GNOME</a> ecosystem and other open-source projects. Its first stable release, version <code>2.0</code>, came in 2002. Today, GLib is prized for its portability and robust features, forming the backbone of many applications.
+    </p>
+
+    <h2>JSON-GLib</h2>
+    <p>
+        Built on top of GLib, <strong>JSON-GLib</strong> is a library focused on handling JSON data—parsing it, generating it, and working with it in C. It appeared in 2007, as JSON rose to prominence as a lightweight data format. Primarily developed by Emmanuele Bassi and contributors from the GNOME community, JSON-GLib integrates with GLib’s <code>GObject</code> system, offering a straightforward API for JSON tasks. Its first stable release, version <code>0.6</code>, arrived in 2009. It’s now a go-to choice for GNOME applications that need to interact with web APIs or process JSON data.
+    </p>
+
+    <h2>Current Status</h2>
+    <p>
+        Both libraries remain active and widely used. GLib provides the foundational infrastructure, while JSON-GLib extends its capabilities to meet modern data exchange needs. Together, they’re key components in the open-source software landscape.
+    </p>
+
+    <h2>Example Usage</h2>
+    <p>
+        Here’s a simple example of how JSON-GLib might be used to parse a JSON string:
+    </p>
+    <pre>
+#include &lt;json-glib/json-glib.h&gt;
+
+int main() {
+    const char *json = "{\"name\": \"Example\", \"value\": 42}";
+    JsonParser *parser = json_parser_new();
+    json_parser_load_from_data(parser, json, -1, NULL);
+    JsonNode *root = json_parser_get_root(parser);
+    g_print("Parsed JSON successfully\n");
+    g_object_unref(parser);
+    return 0;
+}
+        <button onclick="copyCode(this)">Copy</button>
+    </pre>
+
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const code = pre.textContent.replace(/Copy$/, '').trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    alert('Failed to copy: ' + err);
+                });
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Code copied to clipboard!');
+                } catch (err) {
+                    alert('Failed to copy: ' + err);
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+    </script>
+</body>
+</html>

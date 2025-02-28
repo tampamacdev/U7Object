@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploring Interactive LLMs: A Beginner's Guide</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        nav {
+            margin-bottom: 20px;
+        }
+        nav a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+        }
+        h2, h3, h4 {
+            color: #1557a0;
+        }
+        p {
+            margin: 10px 0;
+        }
+        strong {
+            font-weight: 600;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .code-block {
+            position: relative;
+            margin: 20px 0;
+        }
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .copy-button:hover {
+            background-color: #1a6bc3;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #e5e5e5;
+        }
+    </style>
+</head>
+<body>
+    <nav><a href="./index.html">Home</a></nav>
+    <div class="header">
+        <h1>Exploring Interactive LLMs: A Beginner's Guide</h1>
+    </div>
+
+    <h2>Getting Started with LLMs and HTML Generation</h2>
+    <p>
+        If you're new to Large Language Models (LLMs), you might wonder how they can do more than just answer questions. Imagine using an LLM to create web pages or even interact with websites like a wiki. Let’s explore how people are trying to make this happen with open-source projects—perfect for anyone starting out!
+    </p>
+    <h3>Finding Projects That Turn Ideas into Webpages</h3>
+    <p>
+        Some folks are curious about whether there are free, community-built projects that teach LLMs to make HTML code—think of it like turning a conversation into a webpage. One neat example is a project called <strong>Html-code-generation-from-LLM</strong> by PrincySinghal. It trains an LLM to write HTML based on simple instructions, like "make a page with a headline." It’s not perfect yet, but it’s a start!
+    </p>
+    <p>
+        Here’s a peek at what that project can do:
+    </p>
+    <div class="code-block">
+        <button class="copy-button">Copy</button>
+        <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My Portfolio&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1 style="text-align: center;"&gt;My Portfolio&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+    </div>
+    <p>
+        This snippet shows how an LLM can create a basic webpage. With some tweaking, it could even represent a chat between a person and a computer—pretty cool for beginners to play with!
+    </p>
+
+    <h3>Can LLMs Team Up with Wikis?</h3>
+    <p>
+        Now, what if you wanted an LLM to edit a wiki page based on what you tell it? Think of it like having a smart assistant update Wikipedia for you. Sadly, there aren’t many big open-source projects doing this yet. But there are tools that could help you build it yourself!
+    </p>
+    <p>
+        Two big names come up: <strong>LangChain</strong> and <strong>AutoGPT</strong>. They don’t edit wikis out of the box, but they’re flexible enough to try. Let’s break them down next.
+    </p>
+
+    <h2>Understanding LangChain and AutoGPT</h2>
+    <p>
+        These tools are like superpowers for LLMs, and they’re free for anyone to use. Here’s what they’re all about—great for first-timers looking to experiment!
+    </p>
+    <h3>LangChain: Your LLM’s Helper Kit</h3>
+    <p>
+        LangChain is like a toolbox that makes LLMs smarter. It helps them:
+    </p>
+    <ul>
+        <li><strong>Connect to the Outside World</strong>: Pull info from websites or files.</li>
+        <li><strong>Remember Things</strong>: Keep track of your chat so it doesn’t forget what you said.</li>
+        <li><strong>Use Tools</strong>: Like calling a wiki’s API to make edits.</li>
+    </ul>
+    <p>
+        Imagine telling an LLM, "Add a fact to this wiki page." LangChain could fetch the page, let the LLM write something new, and send it back—all step-by-step with your guidance.
+    </p>
+
+    <h3>AutoGPT: The Do-It-Yourself AI</h3>
+    <p>
+        AutoGPT is different—it’s an LLM that works on its own. You give it a goal, like "keep this wiki updated," and it:
+    </p>
+    <ul>
+        <li>Breaks it into tasks (e.g., search, write, edit).</li>
+        <li>Figures things out without much help.</li>
+        <li>Uses tools like web searches or APIs.</li>
+    </ul>
+    <p>
+        It’s like handing off a project to a robot assistant. For beginners, it’s a fun way to see an LLM take charge!
+    </p>
+
+    <h2>Moving Beyond One-Way Chats</h2>
+    <p>
+        Most people use LLMs like a Q&A machine—ask something, get an answer, that’s it. But there’s a bigger world out there, especially if you’re just starting to explore. Lately, folks have been talking about “reasoning” LLMs that think harder before answering. What’s even more exciting? Teaming up with them!
+    </p>
+    <h3>Teaming Up with Your LLM</h3>
+    <p>
+        Picture this: instead of just taking what the LLM says, you work with it. It suggests something, you tweak it, and it tries again. This back-and-forth has a name—or a few names, actually:
+    </p>
+    <ul>
+        <li><strong>Human-in-the-Loop (HITL)</strong>: You’re part of the process, helping it get better.</li>
+        <li><strong>Interactive Reasoning</strong>: You and the LLM solve stuff together in real time.</li>
+        <li><strong>Collaborative Reasoning</strong>: Like buddies figuring out a puzzle.</li>
+    </ul>
+    <p>
+        Here’s how it might look in code terms—say you’re writing HTML with an LLM:
+    </p>
+    <div class="code-block">
+        <button class="copy-button">Copy</button>
+        <pre>&lt;p&gt;Here’s my first try at a paragraph!&lt;/p&gt;
+&lt;!-- You say: "Add some bold text." --&gt;
+&lt;p&gt;Here’s my &lt;strong&gt;updated&lt;/strong&gt; try at a paragraph!&lt;/p&gt;</pre>
+    </div>
+    <p>
+        You’re not just watching—you’re in the loop, making it a team effort. For newcomers, this is a hands-on way to learn how LLMs think!
+    </p>
+
+    <h2>Where to Go From Here</h2>
+    <p>
+        If you’re eager to try this stuff, start small. Play with LangChain (<a href="https://www.langchain.com/">langchain.com</a>) or AutoGPT (<a href="https://github.com/Significant-Gravitas/Auto-GPT">github.com</a>)—they’re open for anyone to download and mess around with. Want to see teamwork in action? Check out tools like <a href="https://cursor.com/">cursor.com</a>, where LLMs tweak code as you type.
+    </p>
+    <p>
+        This is just the beginning—LLMs can be more than answer machines. They can be partners, and you’re right on time to explore it!
+    </p>
+
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const code = button.nextElementSibling.textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        alert('Code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Code copied to clipboard!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
