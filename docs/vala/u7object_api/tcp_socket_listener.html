@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating a TCP Socket Listener in Vala with GIO</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        nav {
+            padding: 0;
+            order: -1;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .spacer {
+            width: 50px;
+            flex-shrink: 0;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .subsection {
+            margin: 0 auto 15px;
+            padding: 1px;
+        }
+
+        h2, .subsection h3 {
+            color: #1557a0;
+            margin-top: 0;
+        }
+
+        .code-block {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        pre {
+            background-color: #e5e5e5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        code {
+            background-color: #e5e5e5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #1e1e1e;
+        }
+
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2a2a2a;
+            color: #d4d4d4;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <nav>
+            <a href="../vala.html">Vala</a>
+        </nav>
+        <h1>Creating a TCP Socket Listener in Vala with GIO</h1>
+        <div class="spacer"></div>
+    </div>
+    <main>
+        <section class="subsection">
+            <h2>Getting Started with TCP Socket Listening</h2>
+            <p>When venturing into network programming with Vala, setting up a TCP socket listener is a key first step. This component allows your server to wait for incoming client connections—like a host welcoming guests. Using GLib’s GIO abstractions, particularly <code>SocketService</code>, we can build a listener that’s both efficient and seamlessly integrated with Vala’s ecosystem. In this guide, we’ll explore how to leverage a custom base class, <code>U7ThreadLoop</code>, to create a robust TCP listener with <code>U7TCPSocketManager</code>.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Meet the U7ThreadLoop Class</h2>
+            <p>Before diving into the socket details, let’s introduce <code>U7ThreadLoop</code>. Think of it as a manager running a busy café, handling orders without slowing down the whole operation. This base class launches a separate thread with its own GLib <code>MainLoop</code> and includes an <code>AsyncQueue</code> for safe inter-thread communication. Here’s what it brings to the table:</p>
+            <ul>
+                <li><strong>Thread Management:</strong> Automatically creates and runs a thread with an event loop.</li>
+                <li><strong>Customization:</strong> Provides hooks like <code>threadEntrySetup()</code> and <code>run()</code> for tailored behavior.</li>
+                <li><strong>Communication:</strong> Uses <code>AsyncQueue</code> to pass messages between threads securely.</li>
+            </ul>
+            <p>This design is ideal for our TCP listener, enabling asynchronous handling of connections while supporting inter-process communication through notifications—keeping everything smooth and responsive.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Building U7TCPSocketManager</h2>
+            <p>Now, let’s build <code>U7TCPSocketManager</code>, a subclass of <code>U7ThreadLoop</code> that uses GLib’s <code>SocketService</code> to manage TCP connections. This class sets up the listener, binds to a port, and processes client interactions, all within the GLib event loop. Below is the complete implementation:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>
+using GLib;
+
+public class U7TCPSocketManager : U7ThreadLoop {
+    private GLib.SocketService? service = null;
+    private uint16 port;
+    private bool running = false;
+    
+    public U7TCPSocketManager(string name, uint16 listen_port) {
+        base(name);
+        this.port = listen_port;
+    }
+    
+    public override void threadEntrySetup() {
+        base.threadEntrySetup();
+        
+        try {
+            // Create TCP socket service
+            service = new GLib.SocketService();
+            
+            // Bind to port (any interface)
+            service.add_inet_port(port, null);
+            
+            // Add incoming connection handler
+            service.incoming.connect((service, connection, source_object) => {
+                return on_incoming_connection(connection, source_object);
+            });
+            
+            GLib.stdout.printf("U7TCPSocketManager [%s]: Listening on port %u\n", 
+                this.get_name(), port);
+                
+        } catch (Error e) {
+            GLib.stderr.printf("U7TCPSocketManager [%s]: Setup error: %s\n",
+                this.get_name(), e.message);
+        }
+    }
+    
+    private bool on_incoming_connection(GLib.SocketConnection connection, Object? source_object) {
+        try {
+            // Get client info
+            GLib.InetSocketAddress remote_address = (GLib.InetSocketAddress)connection.get_remote_address();
+            string client_ip = remote_address.get_address().to_string();
+            uint16 client_port = (uint16)remote_address.get_port();
+        
+            GLib.stdout.printf("U7TCPSocketManager [%s]: New connection from %s:%u\n",
+                this.get_name(), client_ip, client_port);
+            
+            // Handle client connection in a separate thread
+            handle_client(connection, client_ip, client_port);
+            
+            return true; // Keep listening for new connections
+        } catch (Error e) {
+            GLib.stderr.printf("U7TCPSocketManager [%s]: Error handling connection: %s\n",
+                this.get_name(), e.message);
+            return true; // Keep the listener active even if one connection fails
+        }
+    }
+    
+    private void handle_client(GLib.SocketConnection connection, string client_ip, uint16 client_port) {
+        try {
+            // Get input and output streams
+            GLib.InputStream input = connection.input_stream;
+            //GLib.OutputStream output = connection.output_stream;
+            
+            // Read data in a loop
+            GLib.DataInputStream data_input = new GLib.DataInputStream(input);
+            string? line;
+            
+            while ((line = data_input.read_line()) != null) {
+                // Publish received data
+                var data = U7Dictionary.with_pairs(
+                    "client_ip", new U7String(client_ip),
+                    "client_port", new U7Number.from_int(client_port),
+                    "message", new U7String(line),
+                    null
+                );
+                U7NotificationCenter.default().publish("tcp_data_received", data);
+                
+                GLib.stdout.printf("U7TCPSocketManager [%s]: Received from %s:%u: %s\n",
+                    this.get_name(), client_ip, client_port, line);
+            }
+            
+            GLib.stdout.printf("U7TCPSocketManager [%s]: Client %s:%u disconnected\n",
+                this.get_name(), client_ip, client_port);
+                
+        } catch (Error e) {
+            GLib.stderr.printf("U7TCPSocketManager [%s]: Error with client %s:%u: %s\n",
+                this.get_name(), client_ip, client_port, e.message);
+        } finally {
+            try {
+                connection.close();
+            } catch (Error e) {
+                GLib.stderr.printf("U7TCPSocketManager [%s]: Error closing connection: %s\n",
+                    this.get_name(), e.message);
+            }
+        }
+    }
+    
+    public override void run() {
+        GLib.stdout.printf("U7TCPSocketManager [%s]: Starting TCP listener\n", 
+            this.get_name());
+        
+        if (service == null) {
+            GLib.stderr.printf("U7TCPSocketManager [%s]: Cannot run - service not initialized\n",
+                this.get_name());
+            return;
+        }
+        
+        // Start the service
+        service.start();
+        running = true;
+        
+        base.run(); // Runs the MainLoop to process IO events
+    }
+    
+    ~U7TCPSocketManager() {
+        if (service != null && running) {
+            service.stop();
+        }
+    }
+    
+    public override string to_string() {
+        return @"U7TCPSocketManager [$(this.get_name())] (port: $port)";
+    }
+    
+    // Static test method called from main
+    public static void test() {
+        var tcp_manager = new U7TCPSocketManager("TestTCPManager", 9123);
+        tcp_manager.start();
+        GLib.stdout.printf("U7TCPSocketManager test started on port 9123\n");
+    }
+}
+                </code></pre>
+            </div>
+            <p>Here’s a quick rundown: The constructor takes a name and port number. In <code>threadEntrySetup()</code>, we initialize a <code>SocketService</code>, bind it to the specified port, and connect a handler for incoming connections. The <code>on_incoming_connection()</code> method processes new clients and delegates to <code>handle_client()</code>, which reads data and publishes it via a notification system. Finally, <code>run()</code> starts the service and invokes the <code>MainLoop</code> from <code>U7ThreadLoop</code> to keep everything ticking.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Leveraging SocketService for Efficiency</h2>
+            <p>The star of this implementation is <code>GLib.SocketService</code>, a high-level GIO abstraction that simplifies TCP listening. It handles the gritty details—socket creation, binding, and accepting connections—while integrating seamlessly with GLib’s event loop. When a client connects, the <code>incoming</code> signal fires, calling our <code>on_incoming_connection()</code> handler. This approach avoids manual polling or blocking calls, letting the <code>MainLoop</code> manage events efficiently.</p>
+            <p>Inside <code>handle_client()</code>, we use <code>SocketConnection</code> to access input streams and read data asynchronously. The real power comes from pairing this with <code>U7ThreadLoop</code>’s threading and <code>AsyncQueue</code>. Received data is packaged into a <code>U7Dictionary</code> and published via <code>U7NotificationCenter</code>, enabling inter-process communication without tightly coupling components.</p>
+            <p>This design shines for its flexibility—you could extend <code>handle_client()</code> to spawn threads per connection or integrate with other systems via notifications, all while keeping the listener responsive.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Why GIO and MainLoop Beat Manual Polling</h2>
+            <p>Let’s talk efficiency. A naive approach might involve a loop with <code>sleep()</code>, checking the socket repeatedly:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>while (true) {
+    if (check_socket_for_data(socket_fd)) {
+        handle_data(socket_fd);
+    }
+    sleep(1);
+}</code></pre>
+            </div>
+            <p>This wastes CPU cycles or introduces latency—neither is ideal. In contrast, <code>SocketService</code> and <code>MainLoop</code> use system-level mechanisms like <code>poll()</code> or <code>epoll()</code> (on Linux) to wait for events with near-zero overhead. When a connection arrives, the event loop triggers our handler instantly—no spinning, no delays.</p>
+            <p>Under the hood, GLib’s GIO leverages these tools to scale efficiently. <code>poll()</code> monitors multiple file descriptors, while <code>epoll()</code> offers O(1) event retrieval for high-traffic servers. This beats blocking on <code>accept()</code> or polling manually, freeing your app to handle other tasks.</p>
+            <p>Here’s a comparison:</p>
+            <table>
+                <tr>
+                    <th>Approach</th>
+                    <th>Pros</th>
+                    <th>Cons</th>
+                </tr>
+                <tr>
+                    <td>Naive Loop</td>
+                    <td>Simple</td>
+                    <td>Wastes CPU or adds latency</td>
+                </tr>
+                <tr>
+                    <td><code>poll()</code></td>
+                    <td>Efficient, multi-FD support</td>
+                    <td>Scans all FDs each time</td>
+                </tr>
+                <tr>
+                    <td><code>epoll()</code></td>
+                    <td>Scalable, O(1) events</td>
+                    <td>Linux-only</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="subsection">
+            <h2>Inter-Process Communication with U7ThreadLoop</h2>
+            <p>A standout feature of <code>U7TCPSocketManager</code> is its use of <code>U7ThreadLoop</code> for inter-process communication. In <code>handle_client()</code>, incoming data triggers a notification via <code>U7NotificationCenter</code>. This decouples the listener from data processing—other parts of your app can subscribe to <code>tcp_data_received</code> and react without direct interaction. Combined with <code>AsyncQueue</code>, this ensures thread-safe communication, making the class a versatile building block for distributed systems.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Wrapping It Up</h2>
+            <p>With <code>U7TCPSocketManager</code>, we’ve crafted a TCP listener that’s efficient and extensible, thanks to <code>U7ThreadLoop</code> and GLib’s GIO. <code>SocketService</code> handles connections with ease, while the event loop keeps things humming. The notification system ties it all together, supporting inter-process communication effortlessly. Customize <code>handle_client()</code> or scale it up—this foundation is ready for your next network project!</p>
+        </section>
+    </main>
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const code = button.nextElementSibling.querySelector('code').textContent;
+                navigator.clipboard?.writeText(code).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Code copied to clipboard!');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

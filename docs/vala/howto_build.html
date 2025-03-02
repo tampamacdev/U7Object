@@ -13,7 +13,35 @@
             padding: 20px;
             color: #333;
         }
-        h1, h2, h3, h4 {
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            display: flex;           /* Use flexbox */
+            align-items: center;     /* Vertically center items */
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            flex-grow: 1;           /* Take up available space */
+            text-align: center;     /* Center the text */
+        }
+        nav {
+            padding: 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+
+        h2, h3, h4 {
             color: #1a5276;
         }
         code {
@@ -61,7 +89,12 @@
     </style>
 </head>
 <body>
-    <h1>U7Object Vala Project Build Guide</h1>
+
+    <div class="header">
+        <nav><a href="./vala_project.html">Back</a></nav>
+        <h1>U7Object Vala Project Build Guide</h1>
+    </div>
+
     
     <h2>Project Overview</h2>
     <p>
@@ -237,6 +270,8 @@ rm -rf build
 rm u7_api.h  # if you want to regenerate the header
 ./buildrun.sh --reconfigure  # or follow the manual header generation steps
     </pre>
+
+    HOMEBREW_DIR/Cellar/vala/0.56.17/share/vala-0.56/vapi/posix.vapi
 
     <footer>
         <p>Generated for U7Object Vala Project - Copyright &copy; 2025</p>

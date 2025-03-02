@@ -20,18 +20,18 @@ public class AppDelegate : U7Object {
 
 
 int main(string[] args) {
-    
-
-    
-
 
     
 #if INCLUDE_C_BRIDGE_CODE
 
     stdout.printf("Starting WebSocket server from Vala...\n");
     U7Bridge.init();
+
+    //return test();
+
     U7ThreadSubscriber.test();
     U7WebSocketManager.test();
+    U7TCPSocketManager.test();
 
     AppDelegate *appDel = new AppDelegate();
     

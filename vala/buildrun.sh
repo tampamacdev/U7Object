@@ -72,5 +72,8 @@ meson configure -Dinclude_c_bridge_code=true
 value=$(meson configure < /dev/null | grep "include_c_bridge_code" | awk '{print $4}')
 echo "include_c_bridge_code is set to: <$value>"
 
-ninja
+#ninja -v
+
+ninja 
+
 ./websocket_endpoint

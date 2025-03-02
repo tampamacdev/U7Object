@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Network Services with Netcat</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            flex-grow: 1;
+            text-align: center;
+        }
+        h2, h3, h4 {
+            color: #1557a0;
+        }
+        nav {
+            padding: 0;
+            order: -1;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .subsection {
+            margin: 0 auto 30px;
+            padding: 1px;
+        }
+        .code-block {
+            position: relative;
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e5e5e5;
+            padding: 0.2rem;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #1557a0;
+            color: white;
+            margin-top: 2rem;
+            border-radius: 0 0 8px 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav><a href="./index.html">Home</a></nav>
+    <div class="header">
+        <h1>Testing Network Services with Netcat</h1>
+    </div>
+    <main>
+        <div class="subsection">
+            <h2>Introduction to Testing TCP Services</h2>
+            <p>
+                If you're building a network service—like a TCP socket listener in a programming language such as Vala—you’ll need a way to test it. One powerful tool for this job is <strong>Netcat</strong>, often abbreviated as <code>nc</code>. Known as the "Swiss Army knife" of networking, Netcat lets you connect to servers, send data, and listen for responses, making it perfect for debugging and exploring how your service behaves. In this guide, we’ll walk through how to use <code>nc</code> to test a custom TCP socket manager, specifically one written in Vala called <code>U7TCPSocketManager</code>, and then dive into the broader capabilities of Netcat for other network testing tasks.
+            </p>
+            <p>
+                Let’s start by focusing on how to interact with a TCP socket listener configured to run on port 8080, a common choice for testing. We’ll explain why that port is often used and then explore Netcat’s full range of features.
+            </p>
+        </div>
+
+        <div class="subsection">
+            <h2>Interacting with U7TCPSocketManager Using Netcat</h2>
+            <p>
+                Imagine you’ve built a TCP socket listener in Vala called <code>U7TCPSocketManager</code>. This class sets up a server that listens for incoming connections, processes messages from clients, and logs them. For this example, let’s assume it’s configured to listen on port 8080. Here’s how you can use Netcat to test it step-by-step.
+            </p>
+
+            <h3>Step 1: Start Your TCP Socket Manager</h3>
+            <p>
+                First, ensure your <code>U7TCPSocketManager</code> is running. In your Vala program, you might have a test method like this:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public static void test() {
+    var tcp_manager = new U7TCPSocketManager("TestTCPManager", 8080);
+    tcp_manager.start();
+    GLib.stdout.printf("U7TCPSocketManager test started on port 8080\n");
+}</code></pre>
+            </div>
+            <p>
+                When you run this, it starts listening on port 8080. You should see output like <code>U7TCPSocketManager [TestTCPManager]: Starting TCP listener</code>, indicating it’s ready for connections.
+            </p>
+
+            <h3>Step 2: Connect with Netcat</h3>
+            <p>
+                Open a terminal and use Netcat to connect to your server. Type:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc localhost 8080</code></pre>
+            </div>
+            <p>
+                Here, <code>localhost</code> refers to your own machine (IP address 127.0.0.1), and <code>8080</code> is the port your manager is listening on. After running this command, Netcat establishes a TCP connection, and your server should log something like:
+            </p>
+            <pre><code>U7TCPSocketManager [TestTCPManager]: New connection from 127.0.0.1:XXXX</code></pre>
+            <p>
+                The <code>XXXX</code> is the ephemeral port assigned to your Netcat client by the operating system.
+            </p>
+
+            <h3>Step 3: Send Messages</h3>
+            <p>
+                With the connection open, type a message in the Netcat terminal, like <code>Hello, server!</code>, and press Enter. Your <code>U7TCPSocketManager</code> reads this line-by-line and logs it:
+            </p>
+            <pre><code>U7TCPSocketManager [TestTCPManager]: Received from 127.0.0.1:XXXX: Hello, server!</code></pre>
+            <p>
+                This confirms that your server correctly receives and processes client input. If your server were designed to send responses, you’d see them appear in the Netcat terminal.
+            </p>
+
+            <h3>Step 4: Test Disconnection</h3>
+            <p>
+                To test how your server handles a client disconnecting, press <code>Ctrl+C</code> in the Netcat terminal. Your server should log:
+            </p>
+            <pre><code>U7TCPSocketManager [TestTCPManager]: Client 127.0.0.1:XXXX disconnected</code></pre>
+            <p>
+                This helps verify that your server gracefully closes connections.
+            </p>
+
+            <h3>Why Port 8080?</h3>
+            <p>
+                You might wonder why 8080 is often chosen as the default port in examples like this. Port 8080 is a conventional choice for testing because it’s an <em>unprivileged port</em>—ports above 1023 don’t require administrative (root) privileges to bind to on most systems, unlike well-known ports like 80 (HTTP) or 443 (HTTPS). It’s also commonly associated with HTTP proxy servers or alternative web services, making it a recognizable default for developers. While you could use any unprivileged port (e.g., 12345), 8080 strikes a balance between being memorable and unlikely to conflict with standard system services during testing.
+            </p>
+        </div>
+
+        <div class="subsection">
+            <h2>Exploring Netcat’s Full Capabilities</h2>
+            <p>
+                Netcat isn’t just for connecting to servers like <code>U7TCPSocketManager</code>. It’s a versatile tool with many use cases for testing network services. Here’s a detailed look at what you can do with it.
+            </p>
+
+            <h3>1. Acting as a Client</h3>
+            <p>
+                As shown earlier, Netcat can connect to any TCP or UDP server. Beyond manual typing, you can send data from a file:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc localhost 8080 &lt; input.txt</code></pre>
+            </div>
+            <p>
+                If <code>input.txt</code> contains multiple lines, your server processes them all, simulating bulk data transfer. Add the <code>-q 1</code> flag to quit after sending:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -q 1 localhost 8080 &lt; input.txt</code></pre>
+            </div>
+
+            <h3>2. Acting as a Server</h3>
+            <p>
+                Netcat can also listen for incoming connections, letting you test a client you’ve built. Start a simple server:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -l 12345</code></pre>
+            </div>
+            <p>
+                This listens on port 12345. Connect to it from another terminal with <code>nc localhost 12345</code>, and anything typed in one terminal appears in the other. Add <code>-k</code> to keep the server running after a client disconnects:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -l -k 12345</code></pre>
+            </div>
+
+            <h3>3. Port Scanning</h3>
+            <p>
+                Want to check if your <code>U7TCPSocketManager</code> is actually listening? Use Netcat to scan ports:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -z localhost 8080</code></pre>
+            </div>
+            <p>
+                The <code>-z</code> flag checks for open ports without sending data. If it succeeds (exit code 0), port 8080 is open. Test a range of ports with:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -z localhost 8000-8100</code></pre>
+            </div>
+
+            <h3>4. UDP Testing</h3>
+            <p>
+                Netcat supports UDP with the <code>-u</code> flag. Start a UDP server:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -u -l 12345</code></pre>
+            </div>
+            <p>
+                Connect with <code>nc -u localhost 12345</code>. This is useful if you adapt <code>U7TCPSocketManager</code> for UDP in the future.
+            </p>
+
+            <h3>5. Transferring Files</h3>
+            <p>
+                Netcat can send files over the network. On the receiving end:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -l 12345 &gt; received_file.txt</code></pre>
+            </div>
+            <p>
+                On the sending end:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc localhost 12345 &lt; send_file.txt</code></pre>
+            </div>
+            <p>
+                This tests how your server handles large or structured data.
+            </p>
+
+            <h3>6. Echo Server</h3>
+            <p>
+                Create a simple echo server that sends back what it receives:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -l 12345 -e /bin/cat</code></pre>
+            </div>
+            <p>
+                Connect with <code>nc localhost 12345</code>, type something, and see it echoed back. Note: The <code>-e</code> option isn’t available in all versions of Netcat (e.g., OpenBSD’s version omits it for security).
+            </p>
+
+            <h3>7. Debugging with Verbose Output</h3>
+            <p>
+                Add <code>-v</code> for more details:
+            </p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>nc -v localhost 8080</code></pre>
+            </div>
+            <p>
+                This shows connection status (e.g., "Connection to localhost 8080 port [tcp/http-alt] succeeded!"), helping diagnose issues.
+            </p>
+        </div>
+
+        <div class="subsection">
+            <h2>Installing Netcat</h2>
+            <p>
+                To get started, install Netcat on your system:
+            </p>
+            <ul>
+                <li><strong>Linux</strong>: <code>sudo apt install netcat</code> (Ubuntu/Debian) or <code>sudo yum install nmap-ncat</code> (CentOS/RHEL)</li>
+                <li><strong>macOS</strong>: <code>brew install netcat</code> (with Homebrew)</li>
+                <li><strong>Windows</strong>: Use WSL, Cygwin, or download a standalone version from a trusted source.</li>
+            </ul>
+        </div>
+
+        <div class="subsection">
+            <h2>Conclusion</h2>
+            <p>
+                Netcat is an essential tool for anyone working with network services. Whether you’re testing a custom TCP listener like <code>U7TCPSocketManager</code> or exploring other networking tasks, its simplicity and flexibility make it invaluable. Start with basic client connections, then experiment with its server, scanning, and file transfer capabilities to deepen your understanding of network programming.
+            </p>
+        </div>
+    </main>
+    <footer>
+        <p>Built with curiosity and code | March 2025</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const code = button.nextElementSibling.querySelector('code').textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        alert('Code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Code copied to clipboard!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

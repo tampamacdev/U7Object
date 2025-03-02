@@ -3,15 +3,18 @@ Below are a couple of prompts I used to generate the documentation in this repo.
 Example prompt for an HTML document for a the last reponse.
 
 
-Please provide an HTML document of your latest response (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+Please provide an HTML document of your last response (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Don't make the conversational tone overly corny, just a notch below professional. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones for text colors, but make the document background color white. Don't create a dark mode document. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
 
 
 Example prompt for an HTML document for a the entire conversation.
 
 
-Please provide an HTML document of this entire conversation (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
+ 
+Please provide an HTML document of this entire conversation (raw plain text) in a code snippet, the contents of the document should be organized in the style of an actual textbook chapter with the intended audience being someone wanting to learn how to do something for the first time. You can keep the style conversational since most of the contents of this discussion is at its heart a conversation, but try to make the tone more toward anyone and not a particular person asking questions. Don't make the conversational tone overly corny, just a notch below professional. Do not generate Chapter/Section numbers. Format the HTML document to approximate the rich text rendering of a nice webpage. Include proper HTML tags for headings, bold text, lists, inline code, code blocks, tables, and styled links, with CSS to mimic a modern web UI (system fonts, subtle colors, readable layout). For any code blocks (pre tags), include a functional 'Copy' button in the top-right corner, using JavaScript with the navigator.clipboard API and a fallback for older browsers, styled to match the UI. The 'Copy' button is only to copy the plain text contents of the code snippet. Make the &lt;pre&gt; background-color match the &lt;code&gt; background-color (use #e5e5e5). Make the text color for h2, h3... #1557a0. Make the text color for h1 #white. Create a CSS style for a title header aread and make the "header" style background color #1557a0. Make the first element in the body <nav><a href="./index.html">Home</a></nav>. Keep the color palette darker tones for text colors, but make the document background color white. Don't create a dark mode document. Ensure the response is a valid HTML document. When including code snippets (e.g., within <pre> or <code> tags), the plain text content must be valid HTML with special characters escaped—e.g., use &lt; for <, &gt; for >, and &amp; for &. This applies especially to text within <p> tags shown as examples in these snippets. The style should be for a general audience and the tone of the output should not be directed toward me.
 
-Here's an example of a copy button implementation for a code snippet
+
+Use this copy-button implementation for the code snippet copy button. 
+
 
             <div class="code-block">
                 <button class="copy-button">Copy</button>
@@ -50,6 +53,104 @@ public class HelloWorld {
     </script>
 
 
+Use this CSS as a starting point:
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            display: flex;           /* Use flexbox */
+            align-items: center;     /* Vertically center items */
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            flex-grow: 1;           /* Take up available space */
+            text-align: center;     /* Center the text */
+        }
+
+
+        nav {
+            padding: 0;
+            order: -1; /* Places nav on the left */
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+
+        .subsection {
+            margin: 0 auto 30px;
+            padding: 1px;              /* Adds padding inside the subsection */
+        }
+        .subsection h3 {
+            color: #1557a0;
+            margin-top: 0;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .code-block {
+            position: relative;
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #1557a0;
+            color: white;
+            margin-top: 2rem;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
 
 
 

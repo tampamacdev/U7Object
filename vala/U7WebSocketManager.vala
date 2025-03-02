@@ -37,10 +37,10 @@ public class U7WebSocketManager : U7ThreadLoop {
     }
 
     public static void test_json() {
+
         U7Dictionary test = U7PropertyList.test_dictionary();
         string json = test.to_json_string();
         GLib.stdout.printf("U7WebSocketManager init() [%s]\n", json);
-
 
         try {
 

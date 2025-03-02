@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U7ThreadLoop: A Guide to Inter-Thread Communication</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .header {
+            background-color: #1557a0;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            flex-grow: 1;
+            text-align: center;
+        }
+        nav {
+            padding: 0;
+            order: -1;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .subsection {
+            margin: 0 auto 30px;
+            padding: 1px;
+        }
+        .subsection h2 {
+            color: #1557a0;
+            margin-top: 0;
+        }
+        main {
+            margin: 2rem auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .code-block {
+            position: relative;
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #1557a0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        pre {
+            background-color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #1557a0;
+            color: white;
+            margin-top: 2rem;
+        }
+        a {
+            color: #1557a0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav><a href="../index.html">Vala</a></nav>
+        <h1>U7ThreadLoop: A Guide to Inter-Thread Communication</h1>
+    </header>
+    <main>
+        <section class="subsection">
+            <h2>Introduction</h2>
+            <p>When building applications that perform multiple tasks at once, threads become essential. Imagine threads as workers in a factory, each handling a specific job. Sometimes, these workers need to talk to each other—maybe to pass along a piece of information or coordinate their efforts. That’s where inter-thread communication comes in. However, this communication can get messy fast, with risks like data getting scrambled or threads stepping on each other’s toes. The <code>U7ThreadLoop</code> class in Vala offers a clean, safe way to manage this communication using a system called publish-subscribe, or pub/sub for short.</p>
+            <p>In this guide, we’ll explore how <code>U7ThreadLoop</code> works, step by step. You’ll learn how it sets up threads, uses a special queue for passing messages, and connects threads through a notification system. By the end, you’ll have a solid grasp of how to use <code>U7ThreadLoop</code> to make your multi-threaded applications both efficient and reliable.</p>
+        </section>
+
+        <section class="subsection">
+
+
+            <h2>U7ThreadSubscriber</h2>
+            <p>The U7ThreadLoop.vala file contains a U7ThreadLoop subclass named U7ThreadSubscriber. This subclass demonstrates how easy it is to create a subclass and implement a custom thread worker that can subscribe to messages by name and recieve messages safely from any thread to perform asynchronous work.</p>
+
+<div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>
+
+public class U7ThreadSubscriber : U7ThreadLoop {
+
+    private static U7ThreadSubscriber test_subscriber;
+    public U7ThreadSubscriber(string name) {
+        base(name);
+    }
+
+    public override void threadEntrySetup() {
+
+        base.threadEntrySetup();
+        subscribe("keyboard_input", (self, arg) => {
+            string input = U7Utility.getStringFromDictionaryForKey(arg, "input");
+            GLib.stdout.printf("U7ThreadSubscriber|thread_id %" + 
+                uint64.FORMAT + "|keyboard_input: %s\n", self.getThreadID(), input);
+        });    
+    }
+
+    public override string to_string() {
+        return @"U7ThreadSubscriber (thread: $(this.get_name()))";
+    }
+
+    public static void test() {
+        test_subscriber = new U7ThreadSubscriber("U7ThreadSubscriber");        
+        test_subscriber.start();
+    }
+}
+                    
+</code></pre>
+            </div>
+
+            <p>Every <code>U7ThreadLoop</code> subclass object represents a single thread in your application, complete with its own event loop and context. Think of it as a self-contained unit that can run independently while staying connected to others. The test() method in the <code>U7ThreadSubscriber</code> subclass above shows you the first step in creating a worker thread object. To help facilitate managing thread pools the contructor method for U7ThreadLoop takes a string argument to name the thread.</p>
+
+            <p>In the U7ThreadSubscriber example. The sequence of steps that occur from initial U7ThreadLoop instance creation to running the loop are:</p>
+            <ul>
+                <li>Call the static class method <code>U7ThreadSubscriber.test()</code> from the app's <code>main()</code> function.</li>
+                <li>Create the new <code>U7ThreadSubscriber</code> instance <code>test_subscriber</code></li>
+                <li>Start the thread loop with <code>test_subscriber.start()</code> which starts the remaining sequence of events listed below.</li>
+                <li>The <code>U7ThreadLoop</code> object then detaches a thread and calls the <code>thread_func()</code> function on the new thread.</li>
+                <li>Inside the <code>thread_func()</code> function the <code>U7ThreadSubscriber</code> object will call <code>threadEntrySetup()</code>.</li>
+                <li>Inside <code>threadEntrySetup()</code> a new <code>Main Context</code> is create for the thread.</li>
+                <li>Inside <code>threadEntrySetup()</code> a new <code>Main Loop</code> is create for the thread.</li>
+                <li>After <code>threadEntrySetup()</code> is called, <code>U7ThreadLoop</code> starts the run loop.</li>
+
+            </ul>
+
+
+
+            <p>The primary way to customize a worker thread subclassing <code>U7ThreadLoop</code> is to override the <code>threadEntrySetup()</code> method. The example above shows how <code>U7ThreadSubscriber</code> overrides <code>threadEntrySetup()</code>, but calls the parent class's <code>threadEntrySetup()</code> first with: 
+             
+                <section style="text-indent: 20px; padding: 20px;">
+                    <code>base.threadEntrySetup();</code>
+                  </section>
+                
+                This is how the <code>U7ThreadSubscriber</code> instance gets its  <code>MainContext</code> and its <code>MainLoop</code>. These are GLib tools that let the thread handle tasks asynchronously, like waiting for messages or running scheduled jobs. Here’s how it looks:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public override void threadEntrySetup() {
+    this.context = new MainContext();
+    this.context.push_thread_default();
+    this.loop = new MainLoop(this.context, false);
+    GLib.stdout.printf("U7ThreadLoop [%s]: threadEntrySetup\n", this.get_name());
+}</code></pre>
+            </div>
+            <p>Let’s break this down:</p>
+            <ul>
+                <li><strong>Create a MainContext</strong>: The <code>MainContext</code> is like the thread’s scheduler. It manages all the tasks (or “sources”) the thread needs to handle.</li>
+                <li><strong>Push as Default</strong>: By calling <code>push_thread_default()</code>, this context becomes the go-to scheduler for anything happening in the thread. This ensures all asynchronous operations stay within the thread’s lane.</li>
+                <li><strong>Set Up the MainLoop</strong>: The <code>MainLoop</code> is the engine that keeps the thread running, processing events from the context. The <code>false</code> parameter means it doesn’t start automatically—we control when it runs.</li>
+            </ul>
+
+
+            <p>After this setup, your subclass can stage "sources" for the run loop context to manage, but be sure to call <code>base.threadEntrySetup();</code> first, as it’s crucial for proper initialization.</p>
+                
+                <section class="subsection">
+                    <h2>Types of Sources You Can Add</h2>
+                    <p>Here’s a rundown of the common types of sources you might add to a thread’s <code>MainContext</code> in <code>threadEntrySetup()</code>:</p>
+                    <ul>
+                        <li>
+                            <strong>Idle Sources (<code>GLib.IdleSource</code>):</strong>
+                            <p>These run when the thread has nothing else to do—like a “when you’re free” task. Useful for background work that shouldn’t block other operations. Example: Checking the <code>AsyncQueue</code> for messages when the thread is idle.</p>
+                            <p>Added with:</p>
+                            <div class="code-block">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>GLib.Idle.add(() => { ... })</code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Timeout Sources (<code>GLib.TimeoutSource</code>):</strong>
+                            <p>These trigger at regular intervals or after a delay—like a timer. Great for periodic tasks, such as polling or logging status updates. Example: Printing a message every second to monitor thread health.</p>
+                            <p>Added with (time in milliseconds):</p>
+                            <div class="code-block">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>GLib.Timeout.add(1000, () => { ... })</code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>IO Sources (<code>GLib.IOSource</code>):</strong>
+                            <p>These watch file descriptors (like sockets or pipes) for events like data being ready to read or write. Perfect for threads handling input/output, such as reading from <code>stdin</code> or a network connection. Example: Monitoring keyboard input in <code>U7KeyboardInputMonitor</code>.</p>
+                            <p>Created with <code>GLib.IOChannel</code> and attached via:</p>
+                            <div class="code-block">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>IOChannel.add_watch()</code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Custom Sources (<code>GLib.Source</code>):</strong>
+                            <p>You can define your own source type by subclassing <code>GLib.Source</code>, giving you full control over when and how it triggers. Useful for integrating with external systems or custom events. Requires implementing callback functions like <code>prepare</code>, <code>check</code>, and <code>dispatch</code>.</p>
+                        </li>
+                    </ul>
+                </section>
+                
+                After your subclass's implementation of <code>threadEntrySetup()</code> wraps up, the thread loop's run() method is called, which kicks off the <code>MainLoop</code>:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public virtual void run() {
+    this.loop.run();
+    GLib.stdout.printf("U7ThreadLoop [%s]: Starting loop\n", this.get_name());
+}</code></pre>
+            </div>
+            <p>This loop keeps the thread alive, ready to process messages or other tasks as they come in.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Why AsyncQueue Matters</h2>
+            <p>Now that the thread is running, how does it talk to other threads? That’s where <code>AsyncQueue</code> comes in. Picture a mailbox: one thread drops a letter in, and another picks it up when it’s ready. The <code>AsyncQueue</code> is a thread-safe mailbox built into GLib, designed to pass messages without the threads tripping over each other.</p>
+            <p>Each <code>U7ThreadLoop</code> has its own <code>AsyncQueue</code>, created when the object is constructed:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>construct {
+    this.queue = new AsyncQueue&lt;U7Dictionary&gt;();
+}</code></pre>
+            </div>
+            <p>Here’s why <code>AsyncQueue</code> is a big deal:</p>
+            <ul>
+                <li><strong>Thread Safety</strong>: It’s built to handle multiple threads accessing it at once. One thread can push a message while another pops it off, and <code>AsyncQueue</code> ensures nothing gets corrupted.</li>
+                <li><strong>Order Matters</strong>: Messages stay in the order they were sent, so you don’t have to worry about things getting jumbled.</li>
+                <li><strong>No Busy Waiting</strong>: The thread can wait for a message without constantly checking the queue, saving CPU time.</li>
+            </ul>
+            <p>Messages in the queue are <code>U7Dictionary</code> objects—flexible containers that can hold any data you need to send, like strings or numbers. When a message arrives, the thread processes it in its own loop, keeping everything neat and separate.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Pub/Sub Messaging with U7NotificationCenter</h2>
+            <p>The real magic of <code>U7ThreadLoop</code> is its pub/sub system, powered by <code>U7NotificationCenter</code>. This is like a bulletin board: threads can post messages (publish) or sign up to receive them (subscribe). It’s a flexible way to connect threads without them needing to know each other directly.</p>
+            <p>Every <code>U7ThreadLoop</code> registers with the default <code>U7NotificationCenter</code> when it’s created. This happens in <code>recordThreadID()</code>, which also assigns the thread a unique ID:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public void recordThreadID() {
+    main_lock.lock();
+    uint64 next_id = thread_creation_count++;
+    u7_tls_set_thread_uint64_id(next_id);
+    this.setThreadID(next_id);
+    U7NotificationCenter.registerThreadDispatcher(this);
+    main_lock.unlock();
+}</code></pre>
+            </div>
+            <p>Once registered, the thread can subscribe to specific notifications. For example, a subscriber might listen for keyboard input:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>subscribe("keyboard_input", (self, arg) => {
+    string input = U7Utility.getStringFromDictionaryForKey(arg, "input");
+    GLib.stdout.printf("Received keyboard_input: %s\n", input);
+});</code></pre>
+            </div>
+            <p>When another thread publishes a message—like a keyboard monitor detecting input—the <code>U7NotificationCenter</code> sends it to all subscribed threads. The message lands in the thread’s <code>AsyncQueue</code>, and the thread processes it in its own time.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Sending and Processing Messages</h2>
+            <p>To send a message to a specific thread, you use <code>publishOnThread</code>. This method pushes the message into the thread’s <code>AsyncQueue</code> and schedules it to be processed:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public override void publishOnThread(string name, U7Dictionary *info) {
+    this.queue.push(info);
+    this.context.invoke(() => {
+        this.process_messages();
+        return Source.REMOVE;
+    });
+}</code></pre>
+            </div>
+            <p>The <code>invoke</code> call ensures <code>process_messages</code> runs in the thread’s own context, keeping everything thread-safe. Here’s how messages get handled:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>protected bool process_messages() {
+    while (queue.length() > 0) {
+        U7Dictionary message = queue.try_pop();
+        if (message != null && message.value.has_key("publication_name")) {
+            string notification_name = ((U7String)message.value["publication_name"]).to_string();
+            this.invoke_method(notification_name, message, false);
+        }
+    }
+    return true;
+}</code></pre>
+            </div>
+            <p>The thread checks its queue, pulls out each message, and triggers the right subscriber based on the notification name. This all happens within the thread’s <code>MainLoop</code>, so it’s smooth and non-blocking.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Keeping Things Safe</h2>
+            <p>Safety is a top priority in <code>U7ThreadLoop</code>. Multi-threaded apps can be a minefield—data corruption or crashes can happen if threads aren’t careful. Here’s how <code>U7ThreadLoop</code> keeps things under control:</p>
+            <ul>
+                <li><strong>Mutexes</strong>: Locks like <code>main_lock</code> protect shared resources, such as the thread ID counter or the main thread reference. Only one thread can touch these at a time.</li>
+                <li><strong>AsyncQueue</strong>: Its built-in safety means no extra locks are needed for message passing.</li>
+                <li><strong>Thread-Specific Contexts</strong>: Each thread’s <code>MainContext</code> keeps its operations isolated, preventing mix-ups.</li>
+            </ul>
+            <p>These features work together to make sure threads communicate without chaos, even under heavy load.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>The Main Thread’s Role</h2>
+            <p>The main thread—the one that starts your app—gets special treatment. It too has a <code>U7ThreadLoop</code>, called <code>main_thread_loop</code>, set up during initialization:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public new static void init() {
+    u7_tls_set_thread_uint64_id(0);
+    main_thread_loop = new U7MainEventLoop("U7MainThread");
+    main_thread_loop.mainThreadSetup();
+}</code></pre>
+            </div>
+            <p>Unlike other threads, it doesn’t spawn a new thread—it uses the existing main thread. You start its loop with <code>startMainEventLoop</code>:</p>
+            <div class="code-block">
+                <button class="copy-button">Copy</button>
+                <pre><code>public static void startMainEventLoop() {
+    if (main_thread_loop != null) {
+        main_thread_loop.run();
+    }
+}</code></pre>
+            </div>
+            <p>This lets the main thread join the pub/sub party, handling messages just like any other thread.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Tracking Threads</h2>
+            <p>Each thread gets a unique ID, assigned in <code>recordThreadID()</code>. This ID is handy for debugging—you can tell exactly which thread is doing what. It’s stored using thread-local storage and accessible via <code>get_thread_id()</code>. This makes it easier to log messages or spot issues in a busy application.</p>
+        </section>
+
+        <section class="subsection">
+            <h2>Wrapping Up</h2>
+            <p><code>U7ThreadLoop</code> is a powerful tool for anyone diving into multi-threaded programming with Vala. It takes the headache out of thread communication by providing a structured, safe way to pass messages around. With its event loops, <code>AsyncQueue</code>, and pub/sub system, it’s like having a well-oiled machine for your threads to work together.</p>
+            <p>Here’s what to remember:</p>
+            <ul>
+                <li>Threads get their own <code>MainContext</code> and <code>MainLoop</code> for smooth operation.</li>
+                <li><code>AsyncQueue</code> keeps message passing safe and orderly.</li>
+                <li><code>U7NotificationCenter</code> connects threads with a flexible pub/sub model.</li>
+                <li>Safety comes from mutexes and smart design, keeping your data intact.</li>
+            </ul>
+            <p>With <code>U7ThreadLoop</code>, you’re ready to build applications that multitask like pros—responsive, reliable, and ready for anything.</p>
+        </section>
+    </main>
+    <footer>
+        <p>U7ThreadLoop Documentation created with the help of Grok 3</p>
+    </footer>
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const code = button.nextElementSibling.querySelector('code').textContent;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        alert('Code copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Code copied to clipboard!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

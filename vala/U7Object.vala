@@ -149,23 +149,31 @@ public class U7Object : Object {
         _method_table[method_name] = new DelegateWrapper(handler);
     }
 
-    public virtual void invoke_method(string method_name, U7PropertyList? arg) {
-
+    public virtual bool invoke_method(string method_name, U7PropertyList? arg, bool log) {
+        bool success = false;
         if (method_name == null) {
-            //GLib.warning("%s.invoke_method: Null method name", this.get_name());
-            return;
+            if (log)
+                stdout.printf("%s.invoke_method: Null method name", this.get_name());
+            return false;
         }
         if (_method_table.has_key(method_name)) {
 
             _method_table[method_name].invoke(this, arg);
-        
+            success = true;
+
+            if (log)
+                stdout.printf("%s.invoke_method: did invoke for method: '%s'", this.get_name(), method_name);
+
         } else {
-            //GLib.warning("%s.invoke_method: No implementation for '%s'", this.get_name(), method_name);
+            
+            if (log)
+                stdout.printf("%s.invoke_method: No implementation for '%s'", this.get_name(), method_name);
         }
+        return success;
     }
 
     public void perform(string method_name, U7PropertyList? arg = null) {
-        invoke_method(method_name, arg);
+        invoke_method(method_name, arg, false);
     }
 
     public static void init() {

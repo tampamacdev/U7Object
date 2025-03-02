@@ -18,6 +18,7 @@ vala_sources = [
     'U7Number.vala',
     'U7MainEventLoop.vala',
     'U7Array.vala',
+    'U7TCPSocketManager.vala',
     'U7ThreadLoop.vala',
     'U7Dictionary.vala',
     'U7Date.vala',
@@ -30,6 +31,7 @@ vala_sources = [
 dependencies = [
     dependency('glib-2.0'),
     dependency('gobject-2.0'),
+    dependency('gio-2.0'),        # Added for GIO networking
     dependency('threads'),  # Adds pthread support
     dependency('json-glib-1.0'),  # Added for Json support
     dependency('gee-0.8'),        # Added for Gee collections
@@ -51,6 +53,7 @@ vala_args = [
     '--pkg', 'U7NotificationCenter',
     '--pkg', 'posix',           # POSIX bindings
     '--pkg', 'U7Bridge',        # Explicitly include U7Bridge.vapi
+    '--pkg', 'gio-2.0',         # GIO for networking
     '--header=u7_api.h',        # Generate C header
     '--vapidir', meson.current_source_dir()              # Look for .vapi files in current dir
 ]

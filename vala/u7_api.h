@@ -164,7 +164,7 @@ struct _U7ObjectClass {
 	GObjectClass parent_class;
 	gchar* (*get_name) (U7Object* self);
 	void (*publishOnThread) (U7Object* self, const gchar* name, U7Dictionary* info);
-	void (*invoke_method) (U7Object* self, const gchar* method_name, U7PropertyList* arg);
+	gboolean (*invoke_method) (U7Object* self, const gchar* method_name, U7PropertyList* arg, gboolean log);
 	gchar* (*to_string) (U7Object* self);
 };
 
@@ -306,9 +306,10 @@ VALA_EXTERN void u7_object_subscribe (U7Object* self,
                           const gchar* method_name,
                           U7ObjectU7MethodHandler handler,
                           gpointer handler_target);
-VALA_EXTERN void u7_object_invoke_method (U7Object* self,
-                              const gchar* method_name,
-                              U7PropertyList* arg);
+VALA_EXTERN gboolean u7_object_invoke_method (U7Object* self,
+                                  const gchar* method_name,
+                                  U7PropertyList* arg,
+                                  gboolean log);
 VALA_EXTERN void u7_object_perform (U7Object* self,
                         const gchar* method_name,
                         U7PropertyList* arg);

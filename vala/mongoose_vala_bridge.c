@@ -164,7 +164,7 @@ void start_websocket_server(int port) {
     notification_center = u7_notification_center_default();
 
     is_running = 1;
-    printf("Server started on port %d|notification_center %p\n", port, notification_center);
+    printf("websocket server started on port %d|notification_center %p\n", port, notification_center);
 
     while (is_running) {
         mg_mgr_poll(&mgr, 1000);

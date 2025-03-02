@@ -94,10 +94,15 @@ void u7_notification_center_registerThreadDispatcher(U7Object *threadDispatcher)
 
     }
 
+    char *name = u7_object_get_name(threadDispatcher);
 
-    g_print("register %p|center %p|t=d %i|pass %i|thread_id %" G_GUINT64_FORMAT "|dispatcher_id %" G_GUINT64_FORMAT "|array %p|count %i\n", threadDispatcher, center, tread_eq_dispatch, passed_test, thread_id, dispatcher_id, array, count);
+
+
+    g_print("register %p|center %p|t=d %i|pass %i|thread_id %" G_GUINT64_FORMAT "|dispatcher_id %" G_GUINT64_FORMAT "|array %p|count %i|name %s\n", threadDispatcher, center, tread_eq_dispatch, passed_test, thread_id, dispatcher_id, array, count, name);
 
     
+    if (name)
+        g_free(name);
 }
 
 
@@ -173,7 +178,7 @@ void u7_publish(gpointer data, gpointer user_data) {
     struct PublishUserData *info = (struct PublishUserData *)user_data;
     U7Object *obj = (U7Object *)data;
     u7_object_publish(obj, info->name, info->item);
-    //printf("obj: %p\n", obj);
+    //g_print("obj: %p\n", obj);
 
 }
 
@@ -210,7 +215,7 @@ void u7_notification_center_publish(U7NotificationCenter *self, const gchar *nam
 
         U7Dictionary *item_copy = u7_property_list_deep_copy(item);
 
-        g_print("u7_notification_center_publish: %s\n", name);
+        g_print("u7_notification_center_publish: %s|item_copy %p\n", name, item_copy);
         if (item_copy) {
 
             g_mutex_lock(&center->mutex);
